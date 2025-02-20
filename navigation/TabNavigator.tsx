@@ -10,14 +10,14 @@ const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Tab.Navigator id={undefined} screenOptions={{ headerShown: false }}>
       <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" color={color} size={size} />
-          ),
+            tabBarIcon: ({color, size}) => (
+                <Ionicons name="home" color={color} size={size} />
+            ),
         }}
       />
       <Tab.Screen
