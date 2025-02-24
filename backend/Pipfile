@@ -10,6 +10,11 @@ flask-jwt-extended = "*"
 flask-cors = "*"
 flask-restful = "*"
 flask-migrate = "*"
+flask-bcrypt = "*"
+python-dotenv = "*"
+sqlalchemy-serializer = "*"
+pyngrok = "*" 
+
 
 [dev-packages]
 

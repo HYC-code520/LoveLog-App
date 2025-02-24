@@ -1,14 +1,37 @@
-import {useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleLogin = () => {
-        console.log('Logging in with:'), { email, password };
+    const handleLogin = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch("https://4f9f-71-190-177-64.ngrok-free.app/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
 
-    }
+            const data = await response.json();
+            if (response.ok && data.access_token) {
+                await AsyncStorage.setItem("authToken", data.access_token);
+                Alert.alert("Login Successful!", `Welcome back, ${email}`);
+                navigation.replace("Tabs");  // ✅ Navigate to home
+            } else {
+                Alert.alert("Login Failed", data.error || "Invalid credentials");
+            }
+        } catch (error) {
+            console.error("Login Error:", error);
+            Alert.alert("Error", "Something went wrong. Try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Login</Text>
@@ -27,7 +50,7 @@ export default function LoginScreen({ navigation }) {
                 onChangeText={setPassword}
                 secureTextEntry
             />
-            <Button title="Login" onPress={handleLogin} />
+            <Button title={loading ? "Logging in..." : "Login"} onPress={handleLogin} disabled={loading} />
             <Text
                 style={styles.link}
                 onPress={() => navigation.navigate('Signup')}
@@ -35,7 +58,7 @@ export default function LoginScreen({ navigation }) {
                 Don't have an account? Sign up
             </Text>
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
