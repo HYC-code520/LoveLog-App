@@ -15,7 +15,7 @@ export default function SignupScreen({ navigation }) {
 
     setLoading(true);
     try {
-      const response = await fetch("https://4f9f-71-190-177-64.ngrok-free.app/api/signup", {  // 🔥 Replace with your actual backend URL
+      const response = await fetch("https://d7ab-71-190-177-64.ngrok-free.app/api/signup", {  // 🔥 Replace with your actual backend URL
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

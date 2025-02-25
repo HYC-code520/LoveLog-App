@@ -17,7 +17,7 @@ export default function HomeScreen({ navigation }) {
           return;
         }
 
-        const response = await fetch('https://4f9f-71-190-177-64.ngrok-free.app/api/user', {  // 🔹 Use /api/user (singular)
+        const response = await fetch('https://d7ab-71-190-177-64.ngrok-free.app/api/user', {  // 🔹 Use /api/user (singular)
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,  // 🔥 Send JWT token
