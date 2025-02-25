@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({ navigation }) {
@@ -51,6 +51,10 @@ export default function LoginScreen({ navigation }) {
                 secureTextEntry
             />
             <Button title={loading ? "Logging in..." : "Login"} onPress={handleLogin} disabled={loading} />
+            {/* ✅ Forgot Password Link */}
+            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
             <Text
                 style={styles.link}
                 onPress={() => navigation.navigate('Signup')}
@@ -80,6 +84,11 @@ const styles = StyleSheet.create({
       borderColor: '#ddd',
       marginBottom: 10,
       borderRadius: 5,
+    },
+    forgotPasswordText: {
+      color: 'red',
+      marginTop: 10,
+      textDecorationLine: 'underline',
     },
     link: {
       color: 'blue',

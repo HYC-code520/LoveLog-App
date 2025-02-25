@@ -3,6 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import TabNavigator from "./TabNavigator"; // Correct path
 import LoginScreen from "../app/LoginScreen";
 import SignupScreen from "../app/SignupScreen";
+import ForgotPasswordScreen from "../app/ForgotPasswordScreen";
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,10 @@ export default function StackNavigator({ initialRouteName }) {
                     name="Signup" 
                     component={SignupScreen} 
                     options={{ headerShown: false }} 
+                />
+                <Stack.Screen 
+                    name="ForgotPassword" 
+                    component={ForgotPasswordScreen} 
                 />
                 <Stack.Screen 
                     name="Tabs" 

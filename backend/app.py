@@ -2,6 +2,55 @@ from flask import request, jsonify
 from config import app, db
 from models import User
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+import secrets
+
+
+# 🔹 Simulated database for reset tokens (in-memory storage for now)
+reset_tokens = {}
+
+@app.post('/api/forgot-password')
+def forgot_password():
+    data = request.get_json() or {}
+
+    if not data.get('email'):
+        return jsonify({"error": "Email is required"}), 400
+
+    user = User.query.filter_by(email=data['email']).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # 🔥 Generate a reset token (temporary and in-memory for now)
+    reset_token = secrets.token_hex(16)
+    reset_tokens[reset_token] = user.id  # Store token with user ID
+
+    # Simulate email sending (In real app, you'd send an email)
+    print(f"🔹 RESET TOKEN: {reset_token} (This would be sent via email)")
+
+    return jsonify({"message": "Password reset email sent!", "reset_token": reset_token}), 200
+
+@app.post('/api/reset-password')
+def reset_password():
+    data = request.get_json() or {}
+
+    if not data.get('token') or not data.get('new_password'):
+        return jsonify({"error": "Token and new password are required"}), 400
+
+    user_id = reset_tokens.get(data['token'])
+    if not user_id:
+        return jsonify({"error": "Invalid or expired token"}), 400
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # 🔹 Update the user's password
+    user.password = data['new_password']  # Uses password setter
+    db.session.commit()
+
+    # Remove token after use
+    del reset_tokens[data['token']]
+
+    return jsonify({"message": "Password reset successful!"}), 200
 
 # Test route to check if backend is running
 @app.route('/api', methods=['GET'])
