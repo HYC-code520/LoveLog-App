@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, View, StyleSheet, Platform, StatusBar } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import StackNavigator from "./navigation/StackNavigator";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 export default function App() {
   const [loading, setLoading] = useState(true);
@@ -11,7 +12,7 @@ export default function App() {
     const checkLoginStatus = async () => {
       try {
         const token = await AsyncStorage.getItem("authToken");
-        console.log (token)
+        console.log(token);
         if (token) {
           setIsLoggedIn(true);  // ✅ User stays logged in if token exists
         }
@@ -21,17 +22,40 @@ export default function App() {
         setLoading(false);
       }
     };
-    
+
     checkLoginStatus();
   }, []);
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.safeContainer} edges={["top"]}>
+          <View style={styles.centeredView}>
+            <ActivityIndicator size="large" />
+          </View>
+        </SafeAreaView>
+      </SafeAreaProvider>
     );
   }
 
-  return <StackNavigator initialRouteName={isLoggedIn ? "Tabs" : "Login"} />;
+  return (
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.safeContainer} edges={["top"]}>
+        <StackNavigator initialRouteName={isLoggedIn ? "Tabs" : "Login"} />
+      </SafeAreaView>
+    </SafeAreaProvider>
+  );
 }
+
+const styles = StyleSheet.create({
+  safeContainer: { 
+    flex: 1, 
+    backgroundColor: "#f0f0f0",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0, // ✅ Moves everything below status bar
+  },
+  centeredView: {
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center",
+  }
+});

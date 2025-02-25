@@ -68,7 +68,7 @@ export default function HomeScreen({ navigation }) {
         <>
           <Text style={styles.subtitle}>Hello, {user.email}!</Text>
           <Text style={styles.subtitle}>Track your special moments together.</Text>
-          <Button title="Logout" onPress={handleLogout} color="red" />
+          
         </>
       ) : (
         <Text style={styles.subtitle}>Failed to load user data.</Text>
