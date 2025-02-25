@@ -31,11 +31,11 @@ def get_user_by_id(id):
         return jsonify({"id": user.id, "email": user.email}), 200
     return jsonify({"error": "User not found"}), 404
 
-# User Signup (POST /api/users)
-@app.post('/api/users')
+# User Signup 
+@app.post('/api/signup')
 def signup():
-    data = request.get_json() or {}  # ✅ Prevents crashing if no JSON is sent
-    
+    data = request.get_json() or {}  
+
     if not data.get('email') or not data.get('password'):
         return jsonify({"error": "Email and password are required"}), 400
 
@@ -43,11 +43,19 @@ def signup():
         return jsonify({"error": "User already exists"}), 400
 
     new_user = User(email=data['email'])
-    new_user.password = data['password']  # Uses password setter to hash password
+    new_user.password = data['password']  # ✅ Uses password setter to hash password
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"message": "User created successfully", "id": new_user.id}), 201
+    # ✅ Automatically generate JWT after successful sign-up
+    access_token = create_access_token(identity=new_user.id)
+
+    return jsonify({
+        "message": "User created successfully",
+        "id": new_user.id,
+        "access_token": access_token  # ✅ Return JWT to auto-login
+    }), 201
+
 
 # User Login (POST /api/login)
 @app.post('/api/login')
