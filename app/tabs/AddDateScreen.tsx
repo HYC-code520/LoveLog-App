@@ -1,10 +1,19 @@
 import { useState } from 'react';
 import { 
   View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Platform, 
-  ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Alert 
+  ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Alert, Image 
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
+
+const eventIcons = [
+  { id: 'blackandwhitecats', source: require('../../assets/blackandwhitecats_pixel.png') },
+  { id: 'cat', source: require('../../assets/cat_pixel2.png') },
+  { id: 'pizza', source: require('../../assets/pizza_pixel.png') },
+  { id: 'tree', source: require('../../assets/tree_pixel2.png') },
+  { id: 'moon', source: require('../../assets/moon_pixel.png') },
+  { id: 'cake', source: require('../../assets/cake_pixel.png') }
+];
 
 export default function AddDateScreen({ navigation }) {
   const [date, setDate] = useState(new Date());
@@ -19,6 +28,7 @@ export default function AddDateScreen({ navigation }) {
   const [details, setDetails] = useState('');
   const [address, setAddress] = useState('');
   const [photo, setPhoto] = useState('');
+  const [selectedIcon, setSelectedIcon] = useState(null); // ✅ Store selected icon
 
   // 📅 Toggle Date Picker
   const toggleDatePicker = () => setShowDatePicker(!showDatePicker);
@@ -68,7 +78,8 @@ export default function AddDateScreen({ navigation }) {
       details,
       photo,
       startTime: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      endTime: endTime ? endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null
+      endTime: endTime ? endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null,
+      icon: selectedIcon // ✅ Save selected icon in event data
     };
 
     // ✅ Pass event back to CalendarScreen
@@ -89,6 +100,7 @@ export default function AddDateScreen({ navigation }) {
     setStartTime(new Date());
     setEndTime(null);
     setShowEndTimeButton(true);
+    setSelectedIcon(null); // ✅ Reset selected icon
     Keyboard.dismiss(); // ✅ Close keyboard after adding event
   };
 
@@ -158,6 +170,16 @@ export default function AddDateScreen({ navigation }) {
           <TextInput style={styles.input} placeholder="Address (Optional)" value={address} onChangeText={setAddress} />
           <TextInput style={styles.input} placeholder="Photo URL (Optional)" value={photo} onChangeText={setPhoto} />
 
+          {/* 🎨 Icon Selection Section */}
+          <Text style={styles.iconLabel}>Select an Icon:</Text>
+          <View style={styles.iconContainer}>
+            {eventIcons.map((icon) => (
+              <TouchableOpacity key={icon.id} onPress={() => setSelectedIcon(icon.id)} style={selectedIcon === icon.id ? styles.selectedIcon : styles.icon}>
+                <Image source={icon.source} style={styles.iconImage} />
+              </TouchableOpacity>
+            ))}
+          </View>
+
           <Button title="Add Event" onPress={handleAddEvent} />
         </ScrollView>
       </KeyboardAvoidingView>
@@ -183,5 +205,10 @@ const styles = StyleSheet.create({
   },
   dateText: { fontSize: 16 },
   input: { width: '100%', padding: 10, borderWidth: 1, borderColor: '#ddd', marginBottom: 10, borderRadius: 5, backgroundColor: '#fff' },
-  removeText: { color: 'red', textAlign: 'center', marginTop: 5 }
+  removeText: { color: 'red', textAlign: 'center', marginTop: 5 },
+  iconLabel: { fontSize: 16, fontWeight: 'bold', marginTop: 15, marginBottom: 5 },
+  iconContainer: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap' },
+  icon: { margin: 5, padding: 5, borderRadius: 10 },
+  selectedIcon: { margin: 5, padding: 5, borderRadius: 10, borderWidth: 2, borderColor: 'blue' },
+  iconImage: { width: 50, height: 50 }
 });
