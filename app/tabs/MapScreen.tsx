@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 export default function MapScreen() {
@@ -18,26 +18,26 @@ export default function MapScreen() {
         region={region} // 🔥 Centered on NYC
         onRegionChangeComplete={setRegion} // ✅ Allows user to move the map
       >
+        {/* 📍 Raccoon Place (Flatiron School) */}
         <Marker 
           coordinate={{ latitude: 40.7053, longitude: -74.0139 }}
           title="Flatiron School"
           description="Chett's favorite raccoon"
         >
-          <Image 
-            source={require('../../assets/raccoon_pixel.png')} 
-            style={styles.pinIcon} 
-          />
+          <View style={styles.emojiPin}>
+            <Text style={styles.emoji}>🦝</Text>
+          </View>
         </Marker>
+
         {/* 📍 Dessert Place (Cake) */}
         <Marker
           coordinate={{ latitude: 40.7178, longitude: -74.0047 }} // Lady M Cake Boutique
           title="Lady M Cake Boutique"
           description="Famous for their delicious mille crepes 🍰"
         >
-          <Image 
-            source={require('../../assets/cake_pixel.png')} 
-            style={styles.pinIcon} 
-          />
+          <View style={styles.emojiPin}>
+            <Text style={styles.emoji}>🍰</Text>
+          </View>
         </Marker>
 
         {/* 📍 Cute Place (Cat Icon) */}
@@ -46,10 +46,9 @@ export default function MapScreen() {
           title="Meow Parlour"
           description="NYC's cozy cat café 🐱☕"
         >
-          <Image 
-            source={require('../../assets/cat_pixel2.png')} 
-            style={styles.pinIcon} 
-          />
+          <View style={styles.emojiPin}>
+            <Text style={styles.emoji}>🐱</Text>
+          </View>
         </Marker>
 
         {/* 📍 Pizza Place (Pizza Icon) */}
@@ -58,10 +57,9 @@ export default function MapScreen() {
           title="Joe's Pizza"
           description="One of the best pizza spots in NYC 🍕"
         >
-          <Image 
-            source={require('../../assets/pizza_pixel.png')} 
-            style={styles.pinIcon} 
-          />
+          <View style={styles.emojiPin}>
+            <Text style={styles.emoji}>🍕</Text>
+          </View>
         </Marker>
 
         {/* 📍 Park (Tree Icon) */}
@@ -70,10 +68,9 @@ export default function MapScreen() {
           title="Central Park"
           description="The heart of NYC's greenery 🌳"
         >
-          <Image 
-            source={require('../../assets/tree_pixel4.png')} 
-            style={styles.pinIcon} 
-          />
+          <View style={styles.emojiPin}>
+            <Text style={styles.emoji}>🌳</Text>
+          </View>
         </Marker>
 
         {/* 📍 Night View Place (Moon Icon) */}
@@ -82,24 +79,21 @@ export default function MapScreen() {
           title="Times Square"
           description="Best night view with city lights 🌙✨"
         >
-          <Image 
-            source={require('../../assets/moon_pixel.png')} 
-            style={styles.pinIcon} 
-          />
+          <View style={styles.emojiPin}>
+            <Text style={styles.emoji}>🌙</Text>
+          </View>
         </Marker>
 
-        {/* 📍 Couple-Friendly Place (Black & White Cat Icon) */}
+        {/* 📍 Couple-Friendly Place (Heart Icon) */}
         <Marker
           coordinate={{ latitude: 40.7419, longitude: -74.0048 }} // The High Line (Romantic spot)
           title="The High Line"
           description="A romantic walkway with scenic views 👫💕"
         >
-          <Image 
-            source={require('../../assets/heart_pixel.png')} 
-            style={styles.pinIcon} 
-          />
+          <View style={styles.emojiPin}>
+            <Text style={styles.emoji}>💖</Text>
+          </View>
         </Marker>
-
       </MapView>
     </View>
   );
@@ -108,5 +102,6 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { width: '100%', height: '100%' },
-  pinIcon: { width: 40, height: 40, resizeMode: 'contain' }, // ✅ Ensures proper scaling for custom pins
+  emojiPin: { alignItems: 'center', justifyContent: 'center' },
+  emoji: { fontSize: 30 },
 });
