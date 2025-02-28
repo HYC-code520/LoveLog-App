@@ -159,7 +159,7 @@ export default function CalendarScreen({ route, navigation }) {
         )}
         renderEmptyDate={() => (
           <View style={styles.emptyData}>
-            <Text>No Events</Text>
+            <Text></Text>
           </View>
         )}
         theme={{
