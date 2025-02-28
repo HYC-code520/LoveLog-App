@@ -1,19 +1,10 @@
 import { useState } from 'react';
 import { 
   View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Platform, 
-  ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Alert, Image 
+  ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Alert 
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
-
-const eventIcons = [
-  { id: 'blackandwhitecats', source: require('../../assets/blackandwhitecats_pixel.png') },
-  { id: 'cat', source: require('../../assets/cat_pixel2.png') },
-  { id: 'pizza', source: require('../../assets/pizza_pixel.png') },
-  { id: 'tree', source: require('../../assets/tree_pixel2.png') },
-  { id: 'moon', source: require('../../assets/moon_pixel.png') },
-  { id: 'cake', source: require('../../assets/cake_pixel.png') }
-];
 
 export default function AddDateScreen({ navigation }) {
   const [date, setDate] = useState(new Date());
@@ -24,75 +15,117 @@ export default function AddDateScreen({ navigation }) {
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
   const [showEndTimeButton, setShowEndTimeButton] = useState(true);
 
+  // Day Range State – only one extra date is allowed.
+  const [rangeEnabled, setRangeEnabled] = useState(false);
+  const [rangeEnd, setRangeEnd] = useState(null);
+  const [tempRangeEnd, setTempRangeEnd] = useState(new Date());
+  const [showRangeEndPicker, setShowRangeEndPicker] = useState(false);
+
   const [title, setTitle] = useState('');
   const [details, setDetails] = useState('');
   const [address, setAddress] = useState('');
   const [photo, setPhoto] = useState('');
-  const [selectedIcon, setSelectedIcon] = useState(null); // ✅ Store selected icon
 
-  // 📅 Toggle Date Picker
+  // Toggle Date Picker
   const toggleDatePicker = () => setShowDatePicker(!showDatePicker);
-
-  // ⏰ Toggle Time Pickers
+  // Toggle Time Pickers
   const toggleStartTimePicker = () => setShowStartTimePicker(!showStartTimePicker);
   const toggleEndTimePicker = () => setShowEndTimePicker(!showEndTimePicker);
+  // Toggle Range End Picker
+  const toggleRangeEndPicker = () => setShowRangeEndPicker(!showRangeEndPicker);
 
-  // 📅 Handle Date Change
+  // Handle Date Change
   const onDateChange = (event, selectedDate) => {
     if (selectedDate) setDate(selectedDate);
     if (Platform.OS !== 'ios') setShowDatePicker(false);
   };
 
-  // ⏰ Handle Start Time Change
+  // Handle Start Time Change
   const onStartTimeChange = (event, selectedTime) => {
     if (selectedTime) setStartTime(selectedTime);
     if (Platform.OS !== 'ios') setShowStartTimePicker(false);
   };
 
-  // ⏰ Handle End Time Change
+  // Handle End Time Change
   const onEndTimeChange = (event, selectedTime) => {
     if (selectedTime) setEndTime(selectedTime);
     if (Platform.OS !== 'ios') setShowEndTimePicker(false);
   };
 
-  // ✨ Enable End Time Input
+  // Handle Range End Change
+  const onRangeEndChange = (event, selectedDate) => {
+    if (selectedDate) setTempRangeEnd(selectedDate);
+    if (Platform.OS !== 'ios') setShowRangeEndPicker(false);
+  };
+
+  // Enable End Time Input
   const enableEndTime = () => {
     setShowEndTimeButton(false);
     setEndTime(new Date());
   };
 
-  // ❌ Remove End Time
+  // Remove End Time
   const removeEndTime = () => {
     setEndTime(null);
     setShowEndTimeButton(true);
   };
 
-  // 📌 Save Event
+  // Set the single range end date (with check)
+  const setSingleRangeEnd = (day) => {
+    const newDateStr = day.toISOString().split('T')[0];
+    const mainDateStr = date.toISOString().split('T')[0];
+    if (newDateStr === mainDateStr) {
+      Alert.alert("Invalid Selection", "You cannot select the main date as the range end date.");
+      return;
+    }
+    setRangeEnd(day);
+  };
+
+  // Remove the day range
+  const removeRange = () => {
+    setRangeEnabled(false);
+    setRangeEnd(null);
+  };
+
+  // Save Event
   const handleAddEvent = () => {
     if (!title.trim()) return;
 
+    // Compute range if enabled and rangeEnd is set.
+    let range = null;
+    if (rangeEnabled && rangeEnd) {
+      const mainDateStr = date.toISOString().split('T')[0];
+      const rangeEndStr = rangeEnd.toISOString().split('T')[0];
+      const sortedDates = [mainDateStr, rangeEndStr].sort();
+      range = { start: sortedDates[0], end: sortedDates[1] };
+    }
+
     const newEventObj = {
-      date: date.toISOString().split('T')[0], // Convert to YYYY-MM-DD
+      date: date.toISOString().split('T')[0],
       title,
       address,
       details,
       photo,
       startTime: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       endTime: endTime ? endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null,
-      icon: selectedIcon // ✅ Save selected icon in event data
+      // For compatibility, we still pass an empty array for multipleDays when no range is enabled.
+      multipleDays: [],
+      range
     };
 
-    // ✅ Pass event back to CalendarScreen
-    navigation.navigate('Calendar', { newEvent: newEventObj });
+    // Navigate to the Calendar tab's CalendarMain screen (nested in CalendarStack)
+    navigation.navigate('Calendar', { 
+      screen: 'CalendarMain', 
+      params: { newEvent: newEventObj }
+    });
 
-    // ✅ Show Success Message (Alert)
     Alert.alert(
       "Success!",
       "Your event has been added successfully 🎉",
       [{ text: "OK", onPress: () => console.log("Event added!") }]
     );
 
-    // ✅ Reset form fields after event is added
+    // Reset form fields
     setTitle('');
     setAddress('');
     setDetails('');
@@ -100,8 +133,10 @@ export default function AddDateScreen({ navigation }) {
     setStartTime(new Date());
     setEndTime(null);
     setShowEndTimeButton(true);
-    setSelectedIcon(null); // ✅ Reset selected icon
-    Keyboard.dismiss(); // ✅ Close keyboard after adding event
+    setRangeEnabled(false);
+    setRangeEnd(null);
+    
+    Keyboard.dismiss();
   };
 
   return (
@@ -110,7 +145,7 @@ export default function AddDateScreen({ navigation }) {
         <ScrollView contentContainerStyle={styles.scrollView}>
           <Text style={styles.title}>Add Event</Text>
 
-          {/* 🗓️ Date Input with Toggle Arrow */}
+          {/* Main Date Input */}
           <TouchableOpacity onPress={toggleDatePicker} style={styles.dateInput}>
             <Text style={styles.dateText}>📅 {date.toDateString()}</Text>
             <Ionicons name={showDatePicker ? 'chevron-up' : 'chevron-down'} size={20} color="gray" />
@@ -124,9 +159,41 @@ export default function AddDateScreen({ navigation }) {
             />
           )}
 
-          {/* ⏰ Start Time Input with Toggle Arrow */}
+          {/* Day Range Selection */}
+          {!rangeEnabled && (
+            <Button title="Select Day Range (Optional)" onPress={() => setRangeEnabled(true)} />
+          )}
+          {rangeEnabled && (
+            <>
+              <TouchableOpacity onPress={toggleRangeEndPicker} style={styles.dateInput}>
+                <Text style={styles.dateText}>📅 Select Range End Date</Text>
+                <Ionicons name={showRangeEndPicker ? 'chevron-up' : 'chevron-down'} size={20} color="gray" />
+              </TouchableOpacity>
+              {showRangeEndPicker && (
+                <DateTimePicker
+                  value={tempRangeEnd}
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'inline' : 'spinner'}
+                  onChange={onRangeEndChange}
+                />
+              )}
+              <Button title="Set Range End Date" onPress={() => setSingleRangeEnd(tempRangeEnd)} />
+              {rangeEnd && (
+                <View style={styles.dateInput}>
+                  <Text style={styles.dateText}>{rangeEnd.toDateString()}</Text>
+                  <TouchableOpacity onPress={removeRange}>
+                    <Text style={styles.removeText}>Remove Range</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </>
+          )}
+
+          {/* Start Time Input */}
           <TouchableOpacity onPress={toggleStartTimePicker} style={styles.dateInput}>
-            <Text style={styles.dateText}>🕒 Start Time: {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+            <Text style={styles.dateText}>
+              🕒 Start Time: {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </Text>
             <Ionicons name={showStartTimePicker ? 'chevron-up' : 'chevron-down'} size={20} color="gray" />
           </TouchableOpacity>
           {showStartTimePicker && (
@@ -138,14 +205,14 @@ export default function AddDateScreen({ navigation }) {
             />
           )}
 
-          {/* ✅ Button to Enable End Time */}
+          {/* End Time Input */}
           {showEndTimeButton && <Button title="Set End Time (Optional)" onPress={enableEndTime} />}
-
-          {/* ⏰ End Time Input with Toggle Arrow (Only if enabled) */}
           {endTime !== null && (
             <>
               <TouchableOpacity onPress={toggleEndTimePicker} style={styles.dateInput}>
-                <Text style={styles.dateText}>🕛 End Time: {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+                <Text style={styles.dateText}>
+                  🕛 End Time: {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </Text>
                 <Ionicons name={showEndTimePicker ? 'chevron-up' : 'chevron-down'} size={20} color="gray" />
               </TouchableOpacity>
               {showEndTimePicker && (
@@ -156,29 +223,17 @@ export default function AddDateScreen({ navigation }) {
                   onChange={onEndTimeChange}
                 />
               )}
-
-              {/* ❌ Remove End Time Option */}
               <TouchableOpacity onPress={removeEndTime}>
                 <Text style={styles.removeText}>Remove End Time</Text>
               </TouchableOpacity>
             </>
           )}
 
-          {/* 📝 Other Inputs */}
+          {/* Other Inputs */}
           <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} />
           <TextInput style={styles.input} placeholder="Details (Optional)" value={details} onChangeText={setDetails} multiline />
           <TextInput style={styles.input} placeholder="Address (Optional)" value={address} onChangeText={setAddress} />
           <TextInput style={styles.input} placeholder="Photo URL (Optional)" value={photo} onChangeText={setPhoto} />
-
-          {/* 🎨 Icon Selection Section */}
-          <Text style={styles.iconLabel}>Select an Icon:</Text>
-          <View style={styles.iconContainer}>
-            {eventIcons.map((icon) => (
-              <TouchableOpacity key={icon.id} onPress={() => setSelectedIcon(icon.id)} style={selectedIcon === icon.id ? styles.selectedIcon : styles.icon}>
-                <Image source={icon.source} style={styles.iconImage} />
-              </TouchableOpacity>
-            ))}
-          </View>
 
           <Button title="Add Event" onPress={handleAddEvent} />
         </ScrollView>
@@ -205,10 +260,5 @@ const styles = StyleSheet.create({
   },
   dateText: { fontSize: 16 },
   input: { width: '100%', padding: 10, borderWidth: 1, borderColor: '#ddd', marginBottom: 10, borderRadius: 5, backgroundColor: '#fff' },
-  removeText: { color: 'red', textAlign: 'center', marginTop: 5 },
-  iconLabel: { fontSize: 16, fontWeight: 'bold', marginTop: 15, marginBottom: 5 },
-  iconContainer: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap' },
-  icon: { margin: 5, padding: 5, borderRadius: 10 },
-  selectedIcon: { margin: 5, padding: 5, borderRadius: 10, borderWidth: 2, borderColor: 'blue' },
-  iconImage: { width: 50, height: 50 }
+  removeText: { color: 'red', textAlign: 'center', marginTop: 5 }
 });
