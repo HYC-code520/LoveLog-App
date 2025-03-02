@@ -267,10 +267,61 @@ def add_event():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.patch('/api/events/<int:event_id>')
+# @app.patch('/api/events/<int:event_id>')
+# @jwt_required()
+# def update_event(event_id):
+#     """Update an existing event for the logged-in user."""
+#     try:
+#         user_id = get_jwt_identity()
+#         event = Event.query.get(event_id)
+
+#         if not event:
+#             return jsonify({"error": "Event not found"}), 404
+
+#         if event.user_id != user_id:
+#             return jsonify({"error": "Unauthorized: You can only update your own events."}), 403
+
+#         data = request.get_json() or {}
+
+#         # Only update fields that are present in the request body
+#         if "title" in data:
+#             event.title = data["title"].strip()
+#         if "date" in data:
+#             event.date = data["date"].strip()
+#         if "start_time" in data:
+#             event.start_time = data["start_time"].strip()
+#         if "end_time" in data:
+#             event.end_time = data["end_time"].strip() if data.get("end_time") else None
+#         if "address" in data:
+#             event.address = data["address"].strip() if data.get("address") else None
+#         if "latitude" in data:
+#             try:
+#                 event.latitude = float(data["latitude"])
+#             except ValueError:
+#                 return jsonify({"error": "Latitude must be a valid number"}), 400
+#         if "longitude" in data:
+#             try:
+#                 event.longitude = float(data["longitude"])
+#             except ValueError:
+#                 return jsonify({"error": "Longitude must be a valid number"}), 400
+#         if "range_start" in data:
+#             event.range_start = data["range_start"].strip() if data.get("range_start") else None
+#         if "range_end" in data:
+#             event.range_end = data["range_end"].strip() if data.get("range_end") else None
+#         if "photo" in data:
+#             event.photo = data["photo"].strip() if data.get("photo") else None
+
+#         db.session.commit()
+#         return jsonify({"message": "Event updated successfully", "event": event.to_dict()}), 200
+
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+
+
+@app.put('/api/events/<int:event_id>')
 @jwt_required()
 def update_event(event_id):
-    """Update an existing event for the logged-in user."""
+    """Update an existing event for the logged-in user (Full Replacement)."""
     try:
         user_id = get_jwt_identity()
         event = Event.query.get(event_id)
@@ -283,39 +334,34 @@ def update_event(event_id):
 
         data = request.get_json() or {}
 
-        # Only update fields that are present in the request body
-        if "title" in data:
-            event.title = data["title"].strip()
-        if "date" in data:
-            event.date = data["date"].strip()
-        if "start_time" in data:
-            event.start_time = data["start_time"].strip()
-        if "end_time" in data:
-            event.end_time = data["end_time"].strip() if data.get("end_time") else None
-        if "address" in data:
-            event.address = data["address"].strip() if data.get("address") else None
-        if "latitude" in data:
-            try:
-                event.latitude = float(data["latitude"])
-            except ValueError:
-                return jsonify({"error": "Latitude must be a valid number"}), 400
-        if "longitude" in data:
-            try:
-                event.longitude = float(data["longitude"])
-            except ValueError:
-                return jsonify({"error": "Longitude must be a valid number"}), 400
-        if "range_start" in data:
-            event.range_start = data["range_start"].strip() if data.get("range_start") else None
-        if "range_end" in data:
-            event.range_end = data["range_end"].strip() if data.get("range_end") else None
-        if "photo" in data:
-            event.photo = data["photo"].strip() if data.get("photo") else None
+        # ✅ Required fields (MUST be provided)
+        required_fields = ["title", "date"]
+        for field in required_fields:
+            if field not in data or not isinstance(data[field], str) or not data[field].strip():
+                return jsonify({"error": f"'{field}' is required and must be a non-empty string"}), 400
+
+        # ✅ Optional fields (Only update if provided)
+        event.title = data["title"].strip()
+        event.date = data["date"].strip()
+        
+        event.start_time = data.get("start_time", None)  # ✅ Now Optional
+        event.end_time = data.get("end_time", None)  # ✅ Now Optional
+        event.details = data.get("details", None)  # ✅ Now Optional
+        event.address = data.get("address", None)  # ✅ Now Optional
+        event.photo = data.get("photo", None)  # ✅ Now Optional
+        event.range_start = data.get("range_start", None)  # ✅ Now Optional
+        event.range_end = data.get("range_end", None)  # ✅ Now Optional
+
+        # ✅ Optional Numeric Fields (Convert only if provided)
+        event.latitude = float(data["latitude"]) if "latitude" in data and isinstance(data["latitude"], (int, float)) else None
+        event.longitude = float(data["longitude"]) if "longitude" in data and isinstance(data["longitude"], (int, float)) else None
 
         db.session.commit()
         return jsonify({"message": "Event updated successfully", "event": event.to_dict()}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 
