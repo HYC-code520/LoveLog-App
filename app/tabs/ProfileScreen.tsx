@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Button, ActivityIndicator, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import API_BASE_URL from '../../constants/AppConfig';
+import * as SecureStore from "expo-secure-store";
 
 export default function ProfileScreen({ navigation }) {
   const [user, setUser] = useState(null);
@@ -10,14 +12,14 @@ export default function ProfileScreen({ navigation }) {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        const token = await AsyncStorage.getItem('authToken');
+        const token = await SecureStore.getItemAsync('authToken');
         if (!token) {
           Alert.alert('Session Expired', 'Please log in again.');
           navigation.replace('Login');
           return;
         }
 
-        const response = await fetch('https://d7ab-71-190-177-64.ngrok-free.app/api/user', {
+        const response = await fetch(`${API_BASE_URL}/user`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -45,7 +47,7 @@ export default function ProfileScreen({ navigation }) {
   }, []);
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem('authToken');
+    await SecureStore.deleteItemAsync('authToken');
     Alert.alert('Logged Out', 'You have been logged out.');
     navigation.replace('Login');
   };

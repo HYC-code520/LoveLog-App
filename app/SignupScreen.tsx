@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import API_BASE_URL from '../constants/AppConfig';
+import * as SecureStore from "expo-secure-store";
 
 export default function SignupScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -15,7 +17,7 @@ export default function SignupScreen({ navigation }) {
 
     setLoading(true);
     try {
-      const response = await fetch("https://d7ab-71-190-177-64.ngrok-free.app/api/signup", {  // 🔥 Replace with your actual backend URL
+      const response = await fetch(`${API_BASE_URL}/signup`, {  // 🔥 Replace with your actual backend URL
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -24,7 +26,7 @@ export default function SignupScreen({ navigation }) {
       const data = await response.json();
 
       if (response.ok) {
-        await AsyncStorage.setItem("authToken", data.access_token);  // ✅ Store JWT
+        await SecureStore.setItemAsync("authToken", data.access_token);  // ✅ Store JWT
         Alert.alert("Sign Up Successful!", "Welcome!");
         navigation.replace("Tabs");  // ✅ Navigate to home after signup
       } else {

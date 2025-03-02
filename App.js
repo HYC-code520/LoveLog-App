@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View, StyleSheet, Platform, StatusBar } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import StackNavigator from "./navigation/StackNavigator";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import * as SecureStore from "expo-secure-store";
 
 export default function App() {
   const [loading, setLoading] = useState(true);
@@ -11,8 +11,8 @@ export default function App() {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        const token = await AsyncStorage.getItem("authToken");
-        console.log(token);
+        const token = await SecureStore.getItemAsync("authToken");
+        
         if (token) {
           setIsLoggedIn(true);  // ✅ User stays logged in if token exists
         }

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Button, ActivityIndicator, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import API_BASE_URL from '../../constants/AppConfig';
+import * as SecureStore from "expo-secure-store";
 
 export default function HomeScreen({ navigation }) {
   const [user, setUser] = useState(null);  // 🔹 Store only the logged-in user
@@ -10,14 +12,14 @@ export default function HomeScreen({ navigation }) {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        const token = await AsyncStorage.getItem('authToken');
+        const token = await SecureStore.getItemAsync('authToken');
         if (!token) {
           Alert.alert('Session Expired', 'Please log in again.');
           navigation.replace('Login');  // Redirect to login if no token
           return;
         }
 
-        const response = await fetch('https://d7ab-71-190-177-64.ngrok-free.app/api/user', {  // 🔹 Use /api/user (singular)
+        const response = await fetch(`${API_BASE_URL}/user`, {  // 🔹 Use /api/user (singular)
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,  // 🔥 Send JWT token
@@ -45,7 +47,7 @@ export default function HomeScreen({ navigation }) {
   }, []);
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem('authToken'); // ❌ Clear stored token
+    await SecureStore.deleteItemAsync('authToken'); // ❌ Clear stored token
     Alert.alert('Logged Out', 'You have been logged out.');
     navigation.replace('Login');  // 🔄 Redirect to login
   };

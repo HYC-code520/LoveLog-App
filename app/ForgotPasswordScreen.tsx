@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { useRoute, RouteProp } from "@react-navigation/native";  // ✅ Import useRoute to get token from URL
+import API_BASE_URL from "../constants/AppConfig";
 
 // Define a type for your route parameters
 type ForgotPasswordParams = {
@@ -34,7 +35,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
     setLoading(true);
     try {
-      const response = await fetch("https://d7ab-71-190-177-64.ngrok-free.app/api/forgot-password", {  
+      const response = await fetch(`${API_BASE_URL}/forgot-password`, {  
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -64,7 +65,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
     setLoading(true);
     try {
-      const response = await fetch("https://d7ab-71-190-177-64.ngrok-free.app/api/reset-password", {
+      const response = await fetch("https://c341-163-182-130-6.ngrok-free.app/api/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: resetToken, new_password: newPassword }),

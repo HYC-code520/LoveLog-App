@@ -5,6 +5,8 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
+import API_BASE_URL from '../../constants/AppConfig';
+import * as SecureStore from "expo-secure-store";
 
 export default function AddDateScreen({ navigation }) {
   const [date, setDate] = useState(new Date());
@@ -20,6 +22,8 @@ export default function AddDateScreen({ navigation }) {
   const [rangeEnd, setRangeEnd] = useState(null);
   const [tempRangeEnd, setTempRangeEnd] = useState(new Date());
   const [showRangeEndPicker, setShowRangeEndPicker] = useState(false);
+  const [rangeEndPickerVisible, setRangeEndPickerVisible] = useState(false);
+
 
   const [title, setTitle] = useState('');
   const [details, setDetails] = useState('');
@@ -88,158 +92,176 @@ export default function AddDateScreen({ navigation }) {
   };
 
   // Save Event
-  const handleAddEvent = () => {
+  const handleAddEvent = async () => {
     if (!title.trim()) return;
 
-    // Compute range if enabled and rangeEnd is set.
     let range = null;
     if (rangeEnabled && rangeEnd) {
-      const mainDateStr = date.toISOString().split('T')[0];
-      const rangeEndStr = rangeEnd.toISOString().split('T')[0];
-      const sortedDates = [mainDateStr, rangeEndStr].sort();
-      range = { start: sortedDates[0], end: sortedDates[1] };
+        const mainDateStr = date.toISOString().split('T')[0];
+        const rangeEndStr = rangeEnd.toISOString().split('T')[0];
+        const sortedDates = [mainDateStr, rangeEndStr].sort();
+        range = { start: sortedDates[0], end: sortedDates[1] };
     }
 
     const newEventObj = {
-      date: date.toISOString().split('T')[0],
-      title,
-      address,
-      details,
-      photo,
-      startTime: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      endTime: endTime ? endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null,
-      // For compatibility, we still pass an empty array for multipleDays when no range is enabled.
-      multipleDays: [],
-      range
+        date: date.toISOString().split('T')[0],
+        title,
+        address,
+        details,
+        photo,
+        startTime: startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        endTime: endTime ? endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null,
+        range_start: rangeEnabled && rangeEnd ? range.start : null,
+        range_end: rangeEnabled && rangeEnd ? range.end : null
     };
 
-    // Navigate to the Calendar tab's CalendarMain screen (nested in CalendarStack)
-    navigation.navigate('Calendar', { 
-      screen: 'CalendarMain', 
-      params: { newEvent: newEventObj }
-    });
+    try {
+        const token = await SecureStore.getItemAsync('authToken');
+        const response = await fetch(`${API_BASE_URL}/events`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newEventObj)
+        });
 
-    Alert.alert(
-      "Success!",
-      "Your event has been added successfully 🎉",
-      [{ text: "OK", onPress: () => console.log("Event added!") }]
-    );
+        const data = await response.json();
+        if (response.ok) {
+            Alert.alert("Success!", "Your event has been saved to the database 🎉");
 
-    // Reset form fields
-    setTitle('');
-    setAddress('');
-    setDetails('');
-    setPhoto('');
-    setStartTime(new Date());
-    setEndTime(null);
-    setShowEndTimeButton(true);
-    setRangeEnabled(false);
-    setRangeEnd(null);
-    
-    Keyboard.dismiss();
-  };
+            // ✅ Fetch events immediately after saving to update UI
+            navigation.navigate('Calendar', { screen: 'CalendarMain', params: { refresh: true } });
 
-  return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollView}>
-          <Text style={styles.title}>Add Event</Text>
+            
+            // ✅ Ensure new event is fetched & displayed immediately
+            navigation.navigate('Calendar', { screen: 'CalendarMain', params: { refresh: true } });
+        } else {
+            Alert.alert("Error", data.error || "Failed to save event.");
+        }
+    } catch (error) {
+        console.error("Add Event Error:", error);
+        Alert.alert("Error", "Something went wrong.");
+    }
+};
 
-          {/* Main Date Input */}
-          <TouchableOpacity onPress={toggleDatePicker} style={styles.dateInput}>
-            <Text style={styles.dateText}>📅 {date.toDateString()}</Text>
-            <Ionicons name={showDatePicker ? 'chevron-up' : 'chevron-down'} size={20} color="gray" />
-          </TouchableOpacity>
-          {showDatePicker && (
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'inline' : 'spinner'}
-              onChange={onDateChange}
-            />
-          )}
 
-          {/* Day Range Selection */}
-          {!rangeEnabled && (
-            <Button title="Select Day Range (Optional)" onPress={() => setRangeEnabled(true)} />
-          )}
-          {rangeEnabled && (
-            <>
-              <TouchableOpacity onPress={toggleRangeEndPicker} style={styles.dateInput}>
-                <Text style={styles.dateText}>📅 Select Range End Date</Text>
-                <Ionicons name={showRangeEndPicker ? 'chevron-up' : 'chevron-down'} size={20} color="gray" />
-              </TouchableOpacity>
-              {showRangeEndPicker && (
-                <DateTimePicker
-                  value={tempRangeEnd}
-                  mode="date"
-                  display={Platform.OS === 'ios' ? 'inline' : 'spinner'}
-                  onChange={onRangeEndChange}
-                />
-              )}
-              <Button title="Set Range End Date" onPress={() => setSingleRangeEnd(tempRangeEnd)} />
-              {rangeEnd && (
-                <View style={styles.dateInput}>
-                  <Text style={styles.dateText}>{rangeEnd.toDateString()}</Text>
-                  <TouchableOpacity onPress={removeRange}>
-                    <Text style={styles.removeText}>Remove Range</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </>
-          )}
 
-          {/* Start Time Input */}
-          <TouchableOpacity onPress={toggleStartTimePicker} style={styles.dateInput}>
-            <Text style={styles.dateText}>
-              🕒 Start Time: {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </Text>
-            <Ionicons name={showStartTimePicker ? 'chevron-up' : 'chevron-down'} size={20} color="gray" />
-          </TouchableOpacity>
-          {showStartTimePicker && (
-            <DateTimePicker
-              value={startTime}
-              mode="time"
-              display="spinner"
-              onChange={onStartTimeChange}
-            />
-          )}
+return (
+  <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollView}>
+        <Text style={styles.title}>Add Event</Text>
 
-          {/* End Time Input */}
-          {showEndTimeButton && <Button title="Set End Time (Optional)" onPress={enableEndTime} />}
-          {endTime !== null && (
-            <>
-              <TouchableOpacity onPress={toggleEndTimePicker} style={styles.dateInput}>
-                <Text style={styles.dateText}>
-                  🕛 End Time: {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </Text>
-                <Ionicons name={showEndTimePicker ? 'chevron-up' : 'chevron-down'} size={20} color="gray" />
-              </TouchableOpacity>
-              {showEndTimePicker && (
-                <DateTimePicker
-                  value={endTime}
-                  mode="time"
-                  display="spinner"
-                  onChange={onEndTimeChange}
-                />
-              )}
-              <TouchableOpacity onPress={removeEndTime}>
-                <Text style={styles.removeText}>Remove End Time</Text>
-              </TouchableOpacity>
-            </>
-          )}
+        {/* 📅 Main Date Selection */}
+        <TouchableOpacity onPress={toggleDatePicker} style={styles.dateInput}>
+          <Text style={styles.dateText}>📅 {date.toDateString()}</Text>
+          <Ionicons name={showDatePicker ? 'chevron-up' : 'chevron-down'} size={20} color="gray" />
+        </TouchableOpacity>
+        {showDatePicker && (
+          <DateTimePicker
+            value={date}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'inline' : 'spinner'}
+            onChange={onDateChange}
+          />
+        )}
 
-          {/* Other Inputs */}
-          <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} />
-          <TextInput style={styles.input} placeholder="Details (Optional)" value={details} onChangeText={setDetails} multiline />
-          <TextInput style={styles.input} placeholder="Address (Optional)" value={address} onChangeText={setAddress} />
-          <TextInput style={styles.input} placeholder="Photo URL (Optional)" value={photo} onChangeText={setPhoto} />
+        {/* 🔄 Day Range Selection */}
+        {!rangeEnabled && (
+          <Button title="Select Day Range (Optional)" onPress={() => setRangeEnabled(true)} />
+        )}
+        {rangeEnabled && (
+          <>
+            {/* 📅 Range End Date Picker */}
+            <TouchableOpacity onPress={() => {
+              if (!date) {
+                Alert.alert("Select a start date first!");
+                return;
+              }
+              setRangeEndPickerVisible(true);
+            }} style={styles.dateInput}>
+              <Text style={styles.dateText}>📅 Select Range End Date</Text>
+              <Ionicons name={rangeEndPickerVisible ? 'chevron-up' : 'chevron-down'} size={20} color="gray" />
+            </TouchableOpacity>
 
-          <Button title="Add Event" onPress={handleAddEvent} />
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
-  );
+            {rangeEndPickerVisible && (
+              <DateTimePicker
+                value={rangeEnd || date}  // ✅ Opens in the selected month's view
+                mode="date"
+                display={Platform.OS === 'ios' ? 'inline' : 'spinner'}
+                minimumDate={date}  // ✅ Prevents selecting a date before the start
+                onChange={(event, selectedDate) => {
+                  setRangeEndPickerVisible(false);
+                  if (selectedDate) setRangeEnd(selectedDate);
+                }}
+              />
+            )}
+
+            {rangeEnd && (
+              <View style={styles.dateInput}>
+                <Text style={styles.dateText}>📅 {rangeEnd.toDateString()}</Text>
+                <TouchableOpacity onPress={removeRange}>
+                  <Text style={styles.removeText}>Remove Range</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </>
+        )}
+
+        {/* 🕒 Start Time Selection */}
+        <TouchableOpacity onPress={toggleStartTimePicker} style={styles.dateInput}>
+          <Text style={styles.dateText}>
+            🕒 Start Time: {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </Text>
+          <Ionicons name={showStartTimePicker ? 'chevron-up' : 'chevron-down'} size={20} color="gray" />
+        </TouchableOpacity>
+        {showStartTimePicker && (
+          <DateTimePicker
+            value={startTime}
+            mode="time"
+            display="spinner"
+            onChange={onStartTimeChange}
+          />
+        )}
+
+        {/* 🕛 End Time Selection */}
+        {showEndTimeButton && <Button title="Set End Time (Optional)" onPress={enableEndTime} />}
+        {endTime !== null && (
+          <>
+            <TouchableOpacity onPress={toggleEndTimePicker} style={styles.dateInput}>
+              <Text style={styles.dateText}>
+                🕛 End Time: {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </Text>
+              <Ionicons name={showEndTimePicker ? 'chevron-up' : 'chevron-down'} size={20} color="gray" />
+            </TouchableOpacity>
+            {showEndTimePicker && (
+              <DateTimePicker
+                value={endTime}
+                mode="time"
+                display="spinner"
+                onChange={onEndTimeChange}
+              />
+            )}
+            <TouchableOpacity onPress={removeEndTime}>
+              <Text style={styles.removeText}>Remove End Time</Text>
+            </TouchableOpacity>
+          </>
+        )}
+
+        {/* 📋 Other Inputs */}
+        <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} />
+        <TextInput style={styles.input} placeholder="Details (Optional)" value={details} onChangeText={setDetails} multiline />
+        <TextInput style={styles.input} placeholder="Address (Optional)" value={address} onChangeText={setAddress} />
+        <TextInput style={styles.input} placeholder="Photo URL (Optional)" value={photo} onChangeText={setPhoto} />
+
+        {/* ✅ Add Event Button */}
+        <Button title="Add Event" onPress={handleAddEvent} />
+      </ScrollView>
+    </KeyboardAvoidingView>
+  </TouchableWithoutFeedback>
+);
+
 }
 
 const styles = StyleSheet.create({

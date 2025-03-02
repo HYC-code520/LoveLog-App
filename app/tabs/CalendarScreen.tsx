@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { 
+  View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Platform, 
+  ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Alert 
+} from 'react-native';
 import { Agenda } from 'react-native-calendars';
+import API_BASE_URL from '../../constants/AppConfig';
+import * as SecureStore from "expo-secure-store";
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 // Helper function to get all date strings in a range (inclusive)
 function getDatesInRange(startDateStr, endDateStr) {
@@ -16,113 +23,158 @@ function getDatesInRange(startDateStr, endDateStr) {
 }
 
 export default function CalendarScreen({ route, navigation }) {
-  const [items, setItems] = useState({
-    '2025-02-25': [{ name: 'Dinner with partner', date: '2025-02-25' }],
-    '2025-02-26': [{ name: 'Anniversary celebration', date: '2025-02-26' }],
-    '2025-02-27': [], // Empty array for no events
-    '2025-02-28': [
-      { name: 'Trip planning', date: '2025-02-28' },
-      { name: 'Photo shoot', date: '2025-02-28' }
-    ]
-  });
-  const [markedDates, setMarkedDates] = useState({});
+  const [items, setItems] = useState<Record<string, { 
+    name: string; 
+    date: string; 
+    address?: string; 
+    details?: string; 
+    photo?: string; 
+    startTime?: string; 
+    endTime?: string; 
+    range?: { start: string; end: string };
+  }[]>>({});  // ✅ Initial empty object for proper TypeScript handling
+  
+  const [markedDates, setMarkedDates] = useState<Record<string, { 
+    customStyles: { container: { backgroundColor: string; borderRadius: number }; text: { color: string; fontWeight: string } } 
+  }>>({});
+  
 
   // Callback to pre-load a range of dates (even if empty)
   const loadItemsForMonth = (month) => {
     setTimeout(() => {
-      const newItems = { ...items };
-      // Load dates from 15 days before to 85 days after the current month's timestamp.
-      for (let i = -15; i < 85; i++) {
-        const time = month.timestamp + i * 24 * 60 * 60 * 1000;
-        const strTime = new Date(time).toISOString().split('T')[0];
-        if (!newItems[strTime]) {
-          newItems[strTime] = [];
-        }
-      }
-      setItems(newItems);
-    }, 500);
-  };
+        setItems((prevItems) => {
+            const newItems = { ...prevItems };  // ✅ Keep existing events
 
-  // Load new events passed from AddDateScreen
-  useEffect(() => {
-    if (route.params?.newEvent) {
-      const { date, title, address, details, photo, startTime, endTime, range } = route.params.newEvent;
-      setItems((prevItems) => {
-        const updatedItems = { ...prevItems };
-        // If range is defined, store the event on the range start; otherwise, on the main date.
-        const key = range ? range.start : date;
-        if (!updatedItems[key]) {
-          updatedItems[key] = [];
-        }
-        updatedItems[key].push({
-          name: title,
-          address,
-          details,
-          photo,
-          startTime,
-          endTime,
-          range,
-          date // main date for single-day events
-        });
-        return updatedItems;
-      });
-    }
-  }, [route.params?.newEvent]);
+            for (let i = -15; i < 85; i++) {
+                const time = month.timestamp + i * 24 * 60 * 60 * 1000;
+                const strTime = new Date(time).toISOString().split('T')[0];
 
-  // Recalculate markedDates when items change
-  useEffect(() => {
-    const updatedMarkedDates = {};
-
-    // First, mark dates that have events
-    Object.keys(items).forEach(date => {
-      if (items[date] && items[date].length > 0) {
-        updatedMarkedDates[date] = {
-          customStyles: {
-            container: {
-              backgroundColor: 'pink',
-              borderRadius: 50
-            },
-            text: {
-              color: 'white',
-              fontWeight: 'bold'
-            }
-          }
-        };
-      }
-    });
-
-    // For each multi-day event, mark every date in its range.
-    Object.keys(items).forEach(date => {
-      items[date].forEach(event => {
-        if (event.range) {
-          const rangeDates = getDatesInRange(event.range.start, event.range.end);
-          rangeDates.forEach(rdate => {
-            updatedMarkedDates[rdate] = {
-              customStyles: {
-                container: {
-                  backgroundColor: 'pink',
-                  borderRadius: 50
-                },
-                text: {
-                  color: 'white',
-                  fontWeight: 'bold'
+                if (!newItems[strTime]) {
+                    newItems[strTime] = [];  // ✅ Add empty list ONLY if date doesn't exist
                 }
-              }
-            };
-          });
-        }
-      });
-    });
+            }
 
-    setMarkedDates(updatedMarkedDates);
-  }, [items]);
+            // console.log("🔄 Merged items in loadItemsForMonth:", newItems);
+            return newItems;
+        });
+    }, 500);
+};
+
+ // ✅ Move fetchEvents to be a standalone function
+ const fetchEvents = async () => {
+  try {
+      const token = await SecureStore.getItemAsync("authToken");
+      const response = await fetch(`${API_BASE_URL}/events`, {
+          method: "GET",
+          headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+          },
+      });
+
+      const data = await response.json();
+      // console.log("📥 Received events:", data);
+
+      if (!data || typeof data !== "object" || !Array.isArray(data.events)) {
+          console.error("Fetch Events Error: Invalid response structure", data);
+          return;
+      }
+
+      const newItems = {};
+      data.events.forEach((event) => {
+          const key = event.range_start ? event.range_start : event.date;
+          if (!newItems[key]) {
+              newItems[key] = [];
+          }
+          newItems[key].push({
+              id: event.id,
+              name: event.title,
+              address: event.address,
+              details: event.details,
+              photo: event.photo,
+              startTime: event.start_time,
+              endTime: event.end_time,
+              range: event.range_start ? { start: event.range_start, end: event.range_end } : null,
+              date: event.date
+          });
+      });
+
+      // console.log("🔹 Updating state with new events:", newItems);
+      setItems({ ...newItems }); // ✅ Ensure new object reference for React update
+
+  } catch (error) {
+      console.error("Fetch Events Error:", error);
+  }
+};
+
+
+
+
+// ✅ Fetch events when the calendar screen is focused
+useFocusEffect(
+  useCallback(() => {
+    console.log("🛠 Fetching events on screen focus...");
+    fetchEvents();
+  }, [])
+);
+
+
+
+useEffect(() => {
+  console.log("🔍 Updated items state:", JSON.stringify(items, null, 2));
+}, [items]); 
+
+useEffect(() => {
+  const newMarkedDates = {};
+
+  Object.keys(items).forEach((date) => {
+      items[date].forEach((item) => {
+          if (item.range) {
+              // Get all dates in the range
+              const rangeDates = getDatesInRange(item.range.start, item.range.end);
+              rangeDates.forEach((rangeDate) => {
+                  newMarkedDates[rangeDate] = {
+                      customStyles: {
+                          container: {
+                              backgroundColor: 'pink',
+                              borderRadius: 10
+                          },
+                          text: {
+                              color: 'white',
+                              fontWeight: 'bold',
+                          },
+                      },
+                  };
+              });
+          } else {
+              // Single-day event
+              newMarkedDates[date] = {
+                  customStyles: {
+                      container: {
+                          backgroundColor: 'pink',
+                          borderRadius: 10
+                      },
+                      text: {
+                          color: 'white',
+                          fontWeight: 'bold',
+                      },
+                  },
+              };
+          }
+      });
+  });
+
+  // console.log("🔹 Updated markedDates:", newMarkedDates);
+  setMarkedDates(newMarkedDates);
+}, [items]);
+
 
   return (
     <View style={styles.container}>
       <Agenda
         items={items}
         loadItemsForMonth={loadItemsForMonth}  // Pre-load empty dates
-        selected={'2025-02-25'}
+        // selected={'2025-02-25'}
         maxDate={'2050-12-31'}                // Extend future date limit
         pastScrollRange={50}                  // Allow more past days
         futureScrollRange={50}                // Allow more future days
