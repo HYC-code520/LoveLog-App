@@ -3,9 +3,13 @@ import {
   View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Alert, Platform, Button, 
   TouchableWithoutFeedback, KeyboardAvoidingView, ScrollView, Keyboard 
 } from "react-native";import { Ionicons } from "@expo/vector-icons";
-import API_BASE_URL from "../../constants/AppConfig";
+import { API_BASE_URL, CLOUDINARY_CONFIG } from "../../constants/AppConfig";
 import * as SecureStore from "expo-secure-store";
 import DateTimePicker from '@react-native-community/datetimepicker';
+
+const CLOUDINARY_UPLOAD_URL = CLOUDINARY_CONFIG.UPLOAD_URL;
+const UPLOAD_PRESET = CLOUDINARY_CONFIG.UPLOAD_PRESET;
+
 
 export default function EventDetailScreen({ route, navigation }) {
   const { event } = route.params;

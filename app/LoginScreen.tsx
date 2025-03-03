@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import * as SecureStore from "expo-secure-store";
-import API_BASE_URL from "../constants/AppConfig";
+import { API_BASE_URL, CLOUDINARY_CONFIG } from "../constants/AppConfig";
 
 
 export default function LoginScreen({ navigation }) {
@@ -21,7 +21,7 @@ export default function LoginScreen({ navigation }) {
             const data = await response.json();
     
             if (response.ok && data.access_token) {
-                console.log("Token received:", data.access_token);
+                // console.log("Token received:", data.access_token);
                 await SecureStore.setItemAsync("authToken", data.access_token);  // ✅ Secure token storage
                 Alert.alert("Login Successful!", `Welcome back, ${email}`);
                 navigation.replace("Tabs");  // ✅ Navigate to home screen

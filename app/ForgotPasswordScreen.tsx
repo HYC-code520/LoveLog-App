@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { useRoute, RouteProp } from "@react-navigation/native";  // ✅ Import useRoute to get token from URL
-import API_BASE_URL from "../constants/AppConfig";
+import { API_BASE_URL, CLOUDINARY_CONFIG } from "../constants/AppConfig";
 
 // Define a type for your route parameters
 type ForgotPasswordParams = {

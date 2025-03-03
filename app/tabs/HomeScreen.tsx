@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Button, ActivityIndicator, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import API_BASE_URL from '../../constants/AppConfig';
+// import DateSuggestion from "../../components/DateSuggestion";
+import { ScrollView } from "react-native"; // Ensure ScrollView is imported
+import { API_BASE_URL, CLOUDINARY_CONFIG } from '../../constants/AppConfig';
 import * as SecureStore from "expo-secure-store";
 
 export default function HomeScreen({ navigation }) {
@@ -62,30 +63,41 @@ export default function HomeScreen({ navigation }) {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to LoveLog! ❤️</Text>
-      
-      {/* 🔹 Show only the logged-in user */}
-      {user ? (
-        <>
-          <Text style={styles.subtitle}>Hello, {user.email}!</Text>
-          <Text style={styles.subtitle}>Track your special moments together.</Text>
-          
-        </>
-      ) : (
-        <Text style={styles.subtitle}>Failed to load user data.</Text>
-      )}
-    </View>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Welcome to LoveLog! ❤️</Text>
+        
+        {/* 🔹 Show only the logged-in user */}
+        {user ? (
+          <>
+            <Text style={styles.subtitle}>Hello, {user.email}!</Text>
+            <Text style={styles.subtitle}>Track your special moments together.</Text>
+            
+          </>
+        ) : (
+          <Text style={styles.subtitle}>Failed to load user data.</Text>
+        )}
+        {/* 📌 AI Date Suggestion Component
+        <DateSuggestion />       */}
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#f0f0f0',
     padding: 20,
+    width: "100%",
   },
   title: {
     fontSize: 24,
@@ -95,5 +107,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 8,
     color: 'gray',
+    textAlign: "center",
   },
 });

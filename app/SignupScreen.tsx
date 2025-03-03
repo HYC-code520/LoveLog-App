@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import API_BASE_URL from '../constants/AppConfig';
+import { API_BASE_URL, CLOUDINARY_CONFIG } from '../constants/AppConfig';
 import * as SecureStore from "expo-secure-store";
 
 export default function SignupScreen({ navigation }) {

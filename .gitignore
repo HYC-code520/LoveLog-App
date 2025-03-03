@@ -32,8 +32,13 @@ yarn-error.*
 # local env files
 .env
 .env*.local
+# Ignore frontend and backend environment files
+backend/.env
 
 # typescript
 *.tsbuildinfo
+
+constants/OpenAIConfig.ts
+
 
 

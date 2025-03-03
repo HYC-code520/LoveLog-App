@@ -4,10 +4,14 @@ import {
   ScrollView, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard, Alert 
 } from 'react-native';
 import { Agenda } from 'react-native-calendars';
-import API_BASE_URL from '../../constants/AppConfig';
+import { API_BASE_URL, CLOUDINARY_CONFIG } from '../../constants/AppConfig';
 import * as SecureStore from "expo-secure-store";
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+
+const CLOUDINARY_UPLOAD_URL = CLOUDINARY_CONFIG.UPLOAD_URL;
+const UPLOAD_PRESET = CLOUDINARY_CONFIG.UPLOAD_PRESET;
+
 
 // Helper function to get all date strings in a range (inclusive)
 function getDatesInRange(startDateStr, endDateStr) {
