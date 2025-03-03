@@ -121,7 +121,7 @@ useFocusEffect(
 
 
 useEffect(() => {
-  console.log("🔍 Updated items state:", JSON.stringify(items, null, 2));
+  // console.log("🔍 Updated items state:", JSON.stringify(items, null, 2));
 }, [items]); 
 
 useEffect(() => {
