@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { 
-  View, Text, StyleSheet, ActivityIndicator, Alert, Image, TouchableOpacity 
+  View, Text, StyleSheet, ActivityIndicator, Alert, Image, TouchableOpacity, Modal, TextInput
 } from 'react-native';
 import * as SecureStore from "expo-secure-store";
 import { API_BASE_URL } from '../../constants/AppConfig';
@@ -9,6 +9,9 @@ import { Ionicons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 export default function ProfileScreen({ navigation }) {
   const [user, setUser] = useState<{ email: string } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState(null);
+  const [displayName, setDisplayName] = useState("Ariel");
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -68,12 +71,16 @@ export default function ProfileScreen({ navigation }) {
       {/* Partner Placeholder Section */}
       <View style={styles.partnerContainer}>
         {/* User Profile Circle */}
-        <View style={styles.profileWrapper}>
+        <TouchableOpacity style={styles.profileWrapper} onPress={() => setModalVisible(true)}>
           <View style={styles.profileCircle}>
             <MaterialIcons name="favorite" size={30} color="#fff" />
           </View>
-          <Text style={styles.userName}>Ariel</Text>
-        </View>
+          <TextInput
+            style={styles.userName}
+            value={displayName}
+            onChangeText={setDisplayName}
+          />
+        </TouchableOpacity>
 
         {/* "&" Symbol */}
         <Text style={styles.andSymbol}>&</Text>
@@ -82,13 +89,41 @@ export default function ProfileScreen({ navigation }) {
         <TouchableOpacity style={styles.profileWrapper}>
           <View style={styles.profileCircle}>
             <MaterialIcons name="favorite" size={30} color="#fff" />
-            <View style={styles.addIcon}>
-              <Ionicons name="add" size={16} color="white" />
+              <View style={styles.addIcon}>
+                <Ionicons name="add" size={16} color="white" />
+              </View>
             </View>
+            <Text style={styles.userName}>Add partner</Text>
+          </TouchableOpacity>
+        </View>
+        {/* Avatar Selection Modal */}
+        <Modal visible={modalVisible} animationType="slide" transparent={true}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Choose Your Avatar</Text>
+            <View style={styles.avatarGrid}>
+              {Array.from({ length: 12 }).map((_, index) => (
+                <TouchableOpacity 
+                  key={index} 
+                  style={[
+                    styles.avatarPlaceholder, 
+                    selectedAvatar === index && styles.selectedAvatar
+                  ]}
+                  onPress={() => setSelectedAvatar(index)}
+                >
+                  <MaterialIcons name="face" size={24} color="gray" />
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TouchableOpacity 
+              style={styles.doneButton} 
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.doneButtonText}>Done</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={styles.userName}>Add partner</Text>
-        </TouchableOpacity>
-      </View>
+        </View>
+      </Modal>
 
       {/* Profile Info */}
       <View style={styles.infoContainer}>
@@ -181,6 +216,53 @@ const styles = StyleSheet.create({
     height: 18,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    width: 300,
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 15,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  avatarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  avatarPlaceholder: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#EEE',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 5,
+  },
+  selectedAvatar: {
+    borderWidth: 2,
+    borderColor: 'blue',
+  },
+  doneButton: {
+    backgroundColor: 'blue',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 15,
+  },
+  doneButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   infoContainer: {
     width: '90%',  // Ensure it doesn't touch screen edges

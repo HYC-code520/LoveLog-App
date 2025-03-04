@@ -103,7 +103,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
           <>
             {/* <Text style={styles.subtitle}>Hello, {user.email}!</Text> */}
             {/* <Text style={styles.subtitle}>Track your special moments together.</Text> */}
-            <Text style={styles.subtitle}>What should we eat tonight?</Text>
+            <Text style={styles.subtitle}>Spin the Wheel, Pick Your Meal!</Text>
           </>
         ) : (
           <Text style={styles.subtitle}>Failed to load user data.</Text>
