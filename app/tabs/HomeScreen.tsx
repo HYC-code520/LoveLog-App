@@ -17,12 +17,12 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
   const spinRef = useRef<React.ElementRef<typeof GoGoSpin>>(null);
 
   const dateIdeas = [
-    { name: "Picnic", image: require('../../assets/images/king.png') },
-    { name: "Movie Night", image: require('../../assets/images/prize.png') },
-    { name: "Museum", image: require('../../assets/images/prize.png') },
-    { name: "Hiking", image: require('../../assets/images/prize.png') },
-    { name: "Café", image: require('../../assets/images/prize.png') },
-    { name: "Beach", image: require('../../assets/images/prize.png') },
+    { name: "Thai", image: require('../../assets/images/king.png') },
+    { name: "Chinese", image: require('../../assets/images/prize.png') },
+    { name: "Korean", image: require('../../assets/images/prize.png') },
+    { name: "Japanese", image: require('../../assets/images/prize.png') },
+    { name: "Indian", image: require('../../assets/images/prize.png') },
+    { name: "Italian", image: require('../../assets/images/prize.png') },
   ];
 
   useEffect(() => {
@@ -101,8 +101,9 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
 
         {user ? (
           <>
-            <Text style={styles.subtitle}>Hello, {user.email}!</Text>
-            <Text style={styles.subtitle}>Track your special moments together.</Text>
+            {/* <Text style={styles.subtitle}>Hello, {user.email}!</Text> */}
+            {/* <Text style={styles.subtitle}>Track your special moments together.</Text> */}
+            <Text style={styles.subtitle}>What should we eat tonight?</Text>
           </>
         ) : (
           <Text style={styles.subtitle}>Failed to load user data.</Text>
@@ -125,10 +126,19 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
             source={require('../../assets/images/wheel.png')} // ✅ Custom wheel image
             renderItem={(data, i) => (
               <View key={i} style={styles.itemWrapper}>
-                <Text style={styles.prizeText}>{data.name}</Text>
+                <Text 
+                  style={styles.prizeText} 
+                  numberOfLines={1} 
+                  adjustsFontSizeToFit 
+                  minimumFontScale={0.8} 
+                  ellipsizeMode="tail"
+                >
+                  {data.name}
+                </Text>
                 <Image source={data.image} style={styles.itemWrap} />
               </View>
             )}
+            
           />
           
           {/* 🎯 Spin Button */}
