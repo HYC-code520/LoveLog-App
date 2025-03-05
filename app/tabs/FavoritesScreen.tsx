@@ -1,33 +1,46 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import React, { useState } from "react";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function FavoritesScreen({ navigation }) {
   const [favorites, setFavorites] = useState([]); // Placeholder state
+  const [sortOrder, setSortOrder] = useState("custom");
 
   return (
     <View style={styles.container}>
-      {/* Header with Back Button and Sort Placeholder */}
-      <View style={styles.header}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()} 
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Favorite Events</Text>
+      {/* Left-Side Sorting Buttons */}
+      <View style={styles.sortContainer}>
         <TouchableOpacity
-          onPress={() => console.log('Sort feature coming soon')}
-          style={styles.sortButton}
+          style={[styles.sortButton, styles.customSort, sortOrder === "custom" && styles.activeSort]}
+          onPress={() => setSortOrder("custom")}
         >
-          <Ionicons name="funnel-outline" size={24} color="gray" />
-          <Text style={styles.sortText}>Sort</Text>
+          <Image source={require("../../assets/custom_button.jpg")} style={styles.sortImage} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.sortButton, styles.descendingSort, sortOrder === "descending" && styles.activeSort]}
+          onPress={() => setSortOrder("descending")}
+        >
+          <Image source={require("../../assets/descending_button.jpg")} style={styles.sortImage} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.sortButton, styles.ascendingSort, sortOrder === "ascending" && styles.activeSort]}
+          onPress={() => setSortOrder("ascending")}
+        >
+          <Image source={require("../../assets/ascending_button.jpg")} style={styles.sortImage} />
         </TouchableOpacity>
       </View>
 
       {/* Main Content */}
-      <View style={styles.content}>
+      <View style={styles.mainContent}>
+        {/* Header with Back Button */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Favorite Events</Text>
+        </View>
+
+        {/* Empty State */}
         {favorites.length === 0 ? (
           <Text style={styles.emptyText}>No favorite events yet.</Text>
         ) : (
@@ -50,55 +63,84 @@ export default function FavoritesScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: 'white',
+  container: {
+    flex: 1,
+    flexDirection: "row", // Enables left-side sorting buttons
+    backgroundColor: "white",
   },
-  header: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  backButton: {
-    // Optional additional styling can go here
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  sortContainer: {
+    width: 30,
+    backgroundColor: "#4B3D60", // Dark purple sidebar
+    paddingTop: 10,
+    alignItems: "center",
+    // borderTopRightRadius: 30, // Curved effect
+    // borderBottomRightRadius: 30,
   },
   sortButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    width: 30,
+    height: 180,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 1,
+    borderTopLeftRadius: 20,
+    borderBottomLeftRadius: 20,
   },
-  sortText: {
-    marginLeft: 5,
-    fontSize: 16,
-    color: 'gray',
+  customSort: {
+    backgroundColor: "#fff",
   },
-  content: {
+  descendingSort: {
+    backgroundColor: "#D98E8E",
+  },
+  ascendingSort: {
+    backgroundColor: "#A6C8E2",
+  },
+  activeSort: {
+    borderWidth: 1,
+    borderColor: "#fff",
+  },
+  sortImage: {
+    // transform: [{ rotate: "-90deg" }], // Rotates text vertically
+    // textAlign: "center", // Centers text horizontally
+    // textAlignVertical: "center", // Ensures text stays in the middle
+    width: 20, // Image fits inside button
+    // height: 120, // Keeps image proportionate
+    resizeMode: "contain", // Ensures image is fully visible
+    overflow: "hidden", // Prevents wrapping
+  },
+  mainContent: {
     flex: 1,
     padding: 20,
   },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 3,
+    borderBottomColor: "black",
+    paddingBottom: 5,
+  },
+  backButton: {
+    marginRight: 10,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+  },
   emptyText: {
     fontSize: 16,
-    color: 'gray',
-    alignSelf: 'center',
+    color: "gray",
+    alignSelf: "center",
     marginTop: 20,
   },
   eventItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     padding: 15,
     marginVertical: 5,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#f9f9f9",
     borderRadius: 10,
   },
   eventText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
