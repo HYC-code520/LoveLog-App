@@ -57,35 +57,35 @@ export default function ForgotPasswordScreen({ navigation }) {
     }
   };
 
-  const handleResetPassword = async () => {
-    if (!resetToken || !newPassword) {
-      Alert.alert("Error", "Invalid token or password missing.");
-      return;
-    }
+  // const handleResetPassword = async () => {
+  //   if (!resetToken || !newPassword) {
+  //     Alert.alert("Error", "Invalid token or password missing.");
+  //     return;
+  //   }
 
-    setLoading(true);
-    try {
-      const response = await fetch("https://c341-163-182-130-6.ngrok-free.app/api/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: resetToken, new_password: newPassword }),
-      });
+  //   setLoading(true);
+  //   try {
+  //     const response = await fetch("https://c341-163-182-130-6.ngrok-free.app/api/reset-password", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ token: resetToken, new_password: newPassword }),
+  //     });
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (response.ok) {
-        Alert.alert("Password Reset!", "You can now log in with your new password.");
-        navigation.replace("Login");  // ✅ Navigate back to Login
-      } else {
-        Alert.alert("Error", data.error || "Invalid or expired token.");
-      }
-    } catch (error) {
-      console.error("Reset Password Error:", error);
-      Alert.alert("Error", "Something went wrong.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     if (response.ok) {
+  //       Alert.alert("Password Reset!", "You can now log in with your new password.");
+  //       navigation.replace("Login");  // ✅ Navigate back to Login
+  //     } else {
+  //       Alert.alert("Error", data.error || "Invalid or expired token.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Reset Password Error:", error);
+  //     Alert.alert("Error", "Something went wrong.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <View style={styles.container}>
@@ -101,7 +101,7 @@ export default function ForgotPasswordScreen({ navigation }) {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-          <Button title={loading ? "Requesting..." : "Request Reset"} onPress={handleForgotPassword} disabled={loading} />
+          <Button title={loading ? "Requesting..." : "SEND"} onPress={handleForgotPassword} disabled={loading} />
         </>
       ) : (
         <>
@@ -113,7 +113,7 @@ export default function ForgotPasswordScreen({ navigation }) {
             onChangeText={setNewPassword}
             secureTextEntry
           />
-          <Button title={loading ? "Resetting..." : "Reset Password"} onPress={handleResetPassword} disabled={loading} />
+          {/* <Button title={loading ? "Resetting..." : "Reset Password"} onPress={handleResetPassword} disabled={loading} /> */}
         </>
       )}
 

@@ -373,7 +373,7 @@ return (
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f0f0f0' },
-  scrollView: { padding: 20, alignItems: 'center' },
+  scrollView: { flexGrow: 1, padding: 20, alignItems: 'center' },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 15 },
   dateInput: { 
     flexDirection: 'row', 

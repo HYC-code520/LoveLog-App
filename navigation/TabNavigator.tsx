@@ -8,6 +8,7 @@ import EventDetailScreen from '../app/tabs/EventDetailScreen';
 import MapScreen from '../app/tabs/MapScreen';
 import ProfileScreen from '../app/tabs/ProfileScreen';
 import AddDateScreen from '../app/tabs/AddDateScreen';
+import FavoritesScreen from '../app/tabs/FavoritesScreen';
 
 const Tab = createBottomTabNavigator();
 const CalendarStack = createNativeStackNavigator();
@@ -17,6 +18,7 @@ function CalendarStackScreen() {
     <CalendarStack.Navigator id={undefined} screenOptions={{ headerShown: false }}>
       <CalendarStack.Screen name="CalendarMain" component={CalendarScreen} />
       <CalendarStack.Screen name="EventDetail" component={EventDetailScreen} />
+      <CalendarStack.Screen name="Favorites" component={FavoritesScreen} /> 
     </CalendarStack.Navigator>
   );
 }
@@ -70,5 +72,6 @@ export default function TabNavigator() {
         }}
       />
     </Tab.Navigator>
+    
   );
 }

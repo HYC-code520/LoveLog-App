@@ -8,6 +8,7 @@ import { API_BASE_URL, CLOUDINARY_CONFIG } from '../../constants/AppConfig';
 import * as SecureStore from "expo-secure-store";
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 
 const CLOUDINARY_UPLOAD_URL = CLOUDINARY_CONFIG.UPLOAD_URL;
 const UPLOAD_PRESET = CLOUDINARY_CONFIG.UPLOAD_PRESET;
@@ -191,6 +192,11 @@ useEffect(() => {
             style={[styles.item, item.range ? styles.multiDayItem : null]}
             onPress={() => navigation.navigate('EventDetail', { event: item })}
           >
+            {/* ❤️ Favorite Heart Icon */}
+            <TouchableOpacity style={styles.heartIcon} onPress={() => console.log("Favorited:", item.name)}>
+              <Ionicons name="heart-outline" size={20} color="gray" />
+            </TouchableOpacity>
+
             <Text style={styles.itemText}>{item.name}</Text>
             {item.range ? (
               <>
@@ -225,6 +231,14 @@ useEffect(() => {
           agendaKnobColor: 'pink'
         }}
       />
+
+      {/* Floating Heart Button */}
+      <TouchableOpacity 
+        style={styles.floatingHeart} 
+        onPress={() => navigation.navigate('Favorites')}
+      >
+        <Ionicons name="heart-outline" size={30} color="white" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -235,5 +249,25 @@ const styles = StyleSheet.create({
   multiDayItem: { backgroundColor: '#ffe0e0', padding: 20, borderRadius: 10 },
   itemText: { fontSize: 16, fontWeight: 'bold' },
   itemSubText: { fontSize: 14, color: 'gray' },
-  emptyData: { padding: 15, alignItems: 'center' }
+  emptyData: { padding: 15, alignItems: 'center' },
+  // ❤️ Heart Icon Styling
+  heartIcon: {
+    position: 'absolute',
+    top: 8, // Adjust for proper spacing
+    right: 10, // Position in top-right corner
+    zIndex: 2, // Ensure it appears above the event box
+  },
+  floatingHeart: {
+    position: 'absolute',
+    bottom: 30,
+    right: 20,
+    backgroundColor: 'red',
+    padding: 15,
+    borderRadius: 50,
+    elevation: 5, // For Android shadow
+    shadowColor: '#000', // iOS Shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
 });

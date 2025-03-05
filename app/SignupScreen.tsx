@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { API_BASE_URL, CLOUDINARY_CONFIG } from '../constants/AppConfig';
 import * as SecureStore from "expo-secure-store";
 
@@ -40,35 +40,37 @@ export default function SignupScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sign Up</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <Button 
-        title={loading ? "Signing Up..." : "Sign Up"} 
-        onPress={handleSignup} 
-        disabled={loading} 
-      />
-      <Text
-        style={styles.link}
-        onPress={() => navigation.navigate('Login')}
-      >
-        Already have an account? Login
-      </Text>
-    </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Sign Up</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        <Button 
+          title={loading ? "Signing Up..." : "Sign Up"} 
+          onPress={handleSignup} 
+          disabled={loading} 
+        />
+        <Text
+          style={styles.link}
+          onPress={() => navigation.navigate('Login')}
+        >
+          Already have an account? Login
+        </Text>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity, TouchableWithoutFeedback, Keyboard  } from 'react-native';
 import * as SecureStore from "expo-secure-store";
 import { API_BASE_URL, CLOUDINARY_CONFIG } from "../constants/AppConfig";
 
@@ -37,35 +37,37 @@ export default function LoginScreen({ navigation }) {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Login</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType='email-address'
-                autoCapitalize='none'
-            />
-            <TextInput 
-                style={styles.input}
-                placeholder='Password'
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-            />
-            <Button title={loading ? "Logging in..." : "Login"} onPress={handleLogin} disabled={loading} />
-            {/* ✅ Forgot Password Link */}
-            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableOpacity>
-            <Text
-                style={styles.link}
-                onPress={() => navigation.navigate('Signup')}
-            >
-                Don't have an account? Sign up
-            </Text>
-        </View>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.container}>
+                <Text style={styles.title}>Login</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType='email-address'
+                    autoCapitalize='none'
+                />
+                <TextInput 
+                    style={styles.input}
+                    placeholder='Password'
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                />
+                <Button title={loading ? "Logging in..." : "Login"} onPress={handleLogin} disabled={loading} />
+                {/* ✅ Forgot Password Link */}
+                <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                    <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                </TouchableOpacity>
+                <Text
+                    style={styles.link}
+                    onPress={() => navigation.navigate('Signup')}
+                >
+                    Don't have an account? Sign up
+                </Text>
+            </View>
+        </TouchableWithoutFeedback>
     );
 }
 
