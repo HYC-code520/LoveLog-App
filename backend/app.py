@@ -4,7 +4,26 @@ from models import User, PasswordResetToken, Event
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 import secrets
 from datetime import datetime
+# from transformers import pipeline  # Import transformers
 
+# # Add the sentiment analysis pipeline
+# sentiment_pipeline = pipeline("sentiment-analysis")
+# @app.route('/api/analyze_sentiment', methods=['POST'])
+# @jwt_required()
+# def analyze_sentiment():
+#     """Analyze the sentiment of a given text."""
+#     try:
+#         data = request.get_json() or {}s
+#         text = data.get('text')
+
+#         if not text:
+#             return jsonify({'error': 'Text is required'}), 400
+
+#         result = sentiment_pipeline(text)[0]
+#         return jsonify({'sentiment': result['label'], 'score': result['score']}), 200
+
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
 
 @app.post('/api/forgot-password')
 def forgot_password():
@@ -174,7 +193,7 @@ def get_user_events():
     try:
         current_user_id = get_jwt_identity()  # Get user ID from JWT
         events = Event.query.filter_by(user_id=current_user_id).all()  # Fetch all events
-        print("Fetched events:", events)  # Debugging log
+        # print("Fetched events:", events)  # Debugging log
 
 
         if not events:

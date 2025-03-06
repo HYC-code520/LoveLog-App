@@ -339,9 +339,9 @@ return (
         )}
 
         {/* 📋 Other Inputs */}
-        <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} />
-        <TextInput style={styles.input} placeholder="Details (Optional)" value={details} onChangeText={setDetails} multiline />
-        <TextInput style={styles.input} placeholder="Address (Optional)" value={address} onChangeText={setAddress} />
+        <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} placeholderTextColor="#ddd" />
+        <TextInput style={styles.input} placeholder="Details (Optional)" value={details} placeholderTextColor="#ddd" onChangeText={setDetails} multiline  />
+        <TextInput style={styles.input} placeholder="Address (Optional)" value={address} placeholderTextColor="#ddd" onChangeText={setAddress} />
 
           {/* 📸 Photo Selection at the Bottom */}
           <View style={styles.photoContainer}>
@@ -373,7 +373,7 @@ return (
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f0f0f0' },
-  scrollView: { padding: 20, alignItems: 'center' },
+  scrollView: { flexGrow: 1, padding: 20, alignItems: 'center' },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 15 },
   dateInput: { 
     flexDirection: 'row', 
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
   image: { width: "100%", height: 200, borderRadius: 10, marginBottom: 10 }, // ✅ ADDED MISSING IMAGE STYLE
   photoContainer: {
     width: "100%",
-    aspectRatio: 1, // Square shape
+    height:250 ,
     backgroundColor: "#f7f7f7",
     borderRadius: 10,
     borderWidth: 1,

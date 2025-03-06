@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   
-  image: { width: "100%", height: 200, borderRadius: 10, marginBottom: 10 },
+  image: { width: "100%", height: 310, borderRadius: 10, marginBottom: 10 },
   detailText: { fontSize: 16, marginBottom: 5 },
   input: { borderWidth: 1, padding: 10, borderRadius: 5, marginBottom: 10 },
   button: { backgroundColor: "gray", padding: 10, borderRadius: 5, marginTop: 10 },

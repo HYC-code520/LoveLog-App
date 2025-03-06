@@ -8,9 +8,14 @@ import { API_BASE_URL, CLOUDINARY_CONFIG } from '../../constants/AppConfig';
 import * as SecureStore from "expo-secure-store";
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { ImageBackground } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+
 
 const CLOUDINARY_UPLOAD_URL = CLOUDINARY_CONFIG.UPLOAD_URL;
 const UPLOAD_PRESET = CLOUDINARY_CONFIG.UPLOAD_PRESET;
+const backgroundImage = require('../../assets/calendar-top-bg.png');
 
 
 // Helper function to get all date strings in a range (inclusive)
@@ -174,66 +179,134 @@ useEffect(() => {
 
 
   return (
-    <View style={styles.container}>
-      <Agenda
-        items={items}
-        loadItemsForMonth={loadItemsForMonth}  // Pre-load empty dates
-        // selected={'2025-02-25'}
-        maxDate={'2050-12-31'}                // Extend future date limit
-        pastScrollRange={50}                  // Allow more past days
-        futureScrollRange={50}                // Allow more future days
-        hideKnob={false}
-        showClosingKnob={true}
-        markingType={'custom'}
-        markedDates={markedDates}
-        renderItem={(item) => (
-          <TouchableOpacity
-            style={[styles.item, item.range ? styles.multiDayItem : null]}
-            onPress={() => navigation.navigate('EventDetail', { event: item })}
-          >
-            <Text style={styles.itemText}>{item.name}</Text>
-            {item.range ? (
-              <>
-                <Text style={styles.itemSubText}>
-                  From {item.range.start} to {item.range.end}
-                </Text>
-                {item.address && <Text style={styles.itemSubText}>📍 {item.address}</Text>}
-                {item.details && <Text style={styles.itemSubText}>📝 {item.details}</Text>}
-              </>
-            ) : (
-              <>
-                {item.address ? <Text style={styles.itemSubText}>📍 {item.address}</Text> : null}
-                {item.details ? <Text style={styles.itemSubText}>📝 {item.details}</Text> : null}
-                {item.startTime && (
+    <ImageBackground source={backgroundImage} style={styles.backgroundImage}>
+      <View style={styles.container}>
+        <Agenda
+          items={items}
+          loadItemsForMonth={loadItemsForMonth}  // Pre-load empty dates
+          // selected={'2025-02-25'}
+          maxDate={'2050-12-31'}                // Extend future date limit
+          pastScrollRange={50}                  // Allow more past days
+          futureScrollRange={50}                // Allow more future days
+          hideKnob={false}
+          showClosingKnob={true}
+          markingType={'custom'}
+          markedDates={markedDates}
+          renderItem={(item) => (
+            <TouchableOpacity
+              style={[styles.item, item.range ? styles.multiDayItem : null]}
+              onPress={() => navigation.navigate('EventDetail', { event: item })}
+            >
+              {/* ❤️ Favorite Heart Icon */}
+              <TouchableOpacity style={styles.heartIcon} onPress={() => console.log("Favorited:", item.name)}>
+                <Ionicons name="heart-outline" size={20} color="gray" />
+              </TouchableOpacity>
+
+              <Text style={styles.itemText}>{item.name}</Text>
+              {item.range ? (
+                <>
                   <Text style={styles.itemSubText}>
-                    🕒 {item.startTime} {item.endTime ? `- ${item.endTime}` : ''}
+                    From {item.range.start} to {item.range.end}
                   </Text>
-                )}
-              </>
-            )}
-          </TouchableOpacity>
-        )}
-        renderEmptyDate={() => (
-          <View style={styles.emptyData}>
-            <Text></Text>
-          </View>
-        )}
-        theme={{
-          agendaDayTextColor: 'black',
-          agendaDayNumColor: 'black',
-          agendaTodayColor: 'red',
-          agendaKnobColor: 'pink'
-        }}
-      />
-    </View>
+                  {item.address && <Text style={styles.itemSubText}>📍 {item.address}</Text>}
+                  {item.details && <Text style={styles.itemSubText}>📝 {item.details}</Text>}
+                </>
+              ) : (
+                <>
+                  {item.address ? <Text style={styles.itemSubText}>📍 {item.address}</Text> : null}
+                  {item.details ? <Text style={styles.itemSubText}>📝 {item.details}</Text> : null}
+                  {item.startTime && (
+                    <Text style={styles.itemSubText}>
+                      🕒 {item.startTime} {item.endTime ? `- ${item.endTime}` : ''}
+                    </Text>
+                  )}
+                </>
+              )}
+            </TouchableOpacity>
+          )}
+          renderEmptyDate={() => (
+            <View style={styles.emptyData}>
+              <Text></Text>
+            </View>
+          )}
+          theme={{
+            agendaDayTextColor: 'black',
+            agendaDayNumColor: 'black',
+            agendaTodayColor: 'red',
+            agendaKnobColor: 'pink'
+          }}
+        />
+
+        {/* Floating Heart Button */}
+        <TouchableOpacity 
+          style={styles.floatingHeart} 
+          onPress={() => navigation.navigate('Favorites')}
+        >
+          <Ionicons name="heart-outline" size={30} color="white" />
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f0f0f0' },
-  item: { backgroundColor: 'white', padding: 15, marginVertical: 5, borderRadius: 5 },
-  multiDayItem: { backgroundColor: '#ffe0e0', padding: 20, borderRadius: 10 },
-  itemText: { fontSize: 16, fontWeight: 'bold' },
-  itemSubText: { fontSize: 14, color: 'gray' },
-  emptyData: { padding: 15, alignItems: 'center' }
+  container: { flex: 1, backgroundColor: 'transparent', marginTop: 214, },
+  item: {
+    backgroundColor: 'white',
+    padding: 15,
+    marginVertical: 20,
+    borderRadius: 15, // ✅ Rounded Corners
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3, // ✅ Android Shadow
+  },
+    // 📅 Multi-Day Event Styling
+    multiDayItem: {
+      backgroundColor: '#ffe0e0',
+      padding: 20,
+      borderRadius: 15,
+      borderLeftWidth: 5,
+      borderLeftColor: '#ff6b81', // ✅ Adds a border indicator for multi-day events
+    },
+  itemText: { fontSize: 13, fontWeight: 'bold' },
+  itemSubText: { fontSize: 12, color: 'gray', fontStyle: 'italic', },
+  emptyData: { padding: 10, alignItems: 'center' },
+  // ❤️ Heart Icon Styling
+  heartIcon: {
+    position: 'absolute',
+    top: 8, // Adjust for proper spacing
+    right: 10, // Position in top-right corner
+    zIndex: 2, // Ensure it appears above the event box
+  },
+  // 🔥 Floating Button with Glow Effect
+  floatingHeart: {
+    position: 'absolute',
+    bottom: 30,
+    right: 20,
+    backgroundColor: '#ff6b81',
+    padding: 15,
+    borderRadius: 50,
+    elevation: 5,
+    shadowColor: '#ff6b81',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.6,
+    shadowRadius: 4,
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: 'cover', // Ensures the background covers the top area
+    justifyContent: 'flex-start', // Aligns content properly
+  },
+    // 🔴 Highlighted Indicator for Today's Date
+  todayIndicator: {
+    backgroundColor: 'yellow',
+    width: 8,
+    height: 8,
+    borderRadius: 50,
+    position: 'absolute',
+    top: 5,
+    right: 10,
+  },
 });

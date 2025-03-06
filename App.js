@@ -50,7 +50,7 @@ export default function App() {
 const styles = StyleSheet.create({
   safeContainer: { 
     flex: 1, 
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#fff",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0, // ✅ Moves everything below status bar
   },
   centeredView: {
