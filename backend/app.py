@@ -193,7 +193,7 @@ def get_user_events():
     try:
         current_user_id = get_jwt_identity()  # Get user ID from JWT
         events = Event.query.filter_by(user_id=current_user_id).all()  # Fetch all events
-        print("Fetched events:", events)  # Debugging log
+        # print("Fetched events:", events)  # Debugging log
 
 
         if not events:

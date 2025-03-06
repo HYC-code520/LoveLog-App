@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+const emptyFavoritesImage = require("../../assets/cat-not-found-img.png"); 
+
 export default function FavoritesScreen({ navigation }) {
   const [favorites, setFavorites] = useState([]); // Placeholder state
   const [sortOrder, setSortOrder] = useState("custom");
@@ -40,9 +42,12 @@ export default function FavoritesScreen({ navigation }) {
           <Text style={styles.headerTitle}>Favorite Events</Text>
         </View>
 
-        {/* Empty State */}
+        {/* Empty State with Image */}
         {favorites.length === 0 ? (
-          <Text style={styles.emptyText}>No favorite events yet.</Text>
+          <View style={styles.emptyContainer}>
+            <Image source={emptyFavoritesImage} style={styles.emptyImage} />
+            <Text style={styles.emptyText}>No favorite events yet.</Text>
+          </View>
         ) : (
           <FlatList
             data={favorites}
@@ -61,7 +66,6 @@ export default function FavoritesScreen({ navigation }) {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -75,6 +79,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     // borderTopRightRadius: 30, // Curved effect
     // borderBottomRightRadius: 30,
+    zIndex: 10, // 🛑 Ensures it's not overlapped by other components
   },
   sortButton: {
     width: 30,
@@ -129,7 +134,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "gray",
     alignSelf: "center",
-    marginTop: 20,
+    marginTop: -200,
   },
   eventItem: {
     flexDirection: "row",
@@ -143,4 +148,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  emptyContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 50,
+  },
+  emptyImage: {
+    width: 600,  // Adjust size as needed
+    height: 600, // Adjust size as needed
+    resizeMode: "contain",
+
+  },
+
 });
