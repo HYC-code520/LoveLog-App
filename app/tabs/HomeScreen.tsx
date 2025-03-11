@@ -1,20 +1,25 @@
 import { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, Button, ActivityIndicator, Alert, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { Video, ResizeMode } from 'expo-av';
 import { API_BASE_URL } from '../../constants/AppConfig';
 import * as SecureStore from "expo-secure-store";
 import GoGoSpin from "react-native-gogo-spin"; // ✅ Import GoGoSpin
 import { NativeStackScreenProps } from '@react-navigation/native-stack'; // ✅ Type support for navigation
+import { ImageBackground } from 'react-native';
 
 // ✅ Define types for navigation props
 type HomeScreenProps = NativeStackScreenProps<any, 'Home'>;
 
-const SIZE = 300; // ✅ Defined globally
+const SIZE = 240; // ✅ Defined globally
+type VideoResizeMode = "contain" | "cover" | "stretch";
+// const backgroundImage = require('../../assets/home-bg.png'); 
 
 const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
   const [user, setUser] = useState<{ email: string } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [winner, setWinner] = useState<string | null>(null);
   const spinRef = useRef<React.ElementRef<typeof GoGoSpin>>(null);
+  const videoRef = useRef<Video>(null);
 
   const dateIdeas = [
     { name: "Thai", image: require('../../assets/images/king.png') },
@@ -63,11 +68,11 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
     fetchUserData();
   }, []);
 
-  const handleLogout = async () => {
-    await SecureStore.deleteItemAsync('authToken');
-    Alert.alert('Logged Out', 'You have been logged out.');
-    navigation.replace('Login');
-  };
+  // const handleLogout = async () => {
+  //   await SecureStore.deleteItemAsync('authToken');
+  //   Alert.alert('Logged Out', 'You have been logged out.');
+  //   navigation.replace('Login');
+  // };
 
   // 🎡 Function to Trigger Spin
   const doSpin = (): void => {
@@ -95,15 +100,26 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
   }
 
   return (
+    <View style={styles.backgroundContainer}>
+      {/* 🎥 Background Video */}
+      <Video
+        ref={videoRef}
+        source={ require('../../assets/Home-bg-vid.mp4') }
+        style={styles.backgroundVideo}
+        resizeMode={"cover" as unknown as ResizeMode} // Force the value to match the expected type
+        shouldPlay
+        isLooping={false}
+      />
+
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        <Text style={styles.title}>Welcome to LoveLog! ❤️</Text>
+        <Text style={styles.title}></Text>
 
         {user ? (
           <>
             {/* <Text style={styles.subtitle}>Hello, {user.email}!</Text> */}
             {/* <Text style={styles.subtitle}>Track your special moments together.</Text> */}
-            <Text style={styles.subtitle}>Spin the Wheel, Pick Your Meal!</Text>
+            <Text style={styles.subtitle}></Text>
           </>
         ) : (
           <Text style={styles.subtitle}>Failed to load user data.</Text>
@@ -151,8 +167,9 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
         {/* {winner && <Text style={styles.winnerText}>🎉 Your Date Idea: {winner} 🎉</Text>} */}
 
         
-      </View>
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -206,7 +223,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  spinBtn: { width: 105, height: 124 },
+  spinBtn: { width: 80, height: 80 },
   spinWarp: { position: 'absolute' },
   itemWrap: { width: 40, height: 40 },
   winnerText: {
@@ -215,5 +232,21 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#ff5733",
     textAlign: "center",
+  },
+
+  backgroundVideo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+  },
+  backgroundContainer: {
+    flex: 1,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

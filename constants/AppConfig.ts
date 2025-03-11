@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://a0b4-74-108-134-169.ngrok-free.app/api";
+const API_BASE_URL = "https://6c3c-74-108-134-169.ngrok-free.app/api";
 
 const CLOUDINARY_CONFIG = {
   UPLOAD_URL: "https://api.cloudinary.com/v1_1/daflx8yu0/image/upload",

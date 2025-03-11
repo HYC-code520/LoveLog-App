@@ -12,9 +12,20 @@ import { ActivityIndicator } from "react-native";
 import { Linking } from "react-native";
 
 
+const EMOJIS = [
+  '🍣', '🍽️', '🍔', '🍹', '🍰', '☕', '🍕', '🍦', '🎡', '🎤',
+  '🎭', '🎮', '🎳', '🕹️', '🥊', '🏕️', '🌳', '🏖️', '🚴', '✈️',
+  '🏛️', '🏔️', '🌅', '🛍️', '💖', '❤️', '💑', '🕯️', '💌', '💔',
+  '㊙️', '💍', '🎄', '🎁', '🍼', '🎓', '🎆', '🏆', '🎊', '🌹',
+  '⭐', '🐾', '🐱', '🐹', '🐭', '🐰', '🐶', '🦝', '👯‍♂️', '🎉',
+  '🎵', '🎧', '🛠️', '🚽', '📘', '🤝', '👋', '📸', '🚲', '🍻',
+  '🏓', '📍', '🩸'
+];
 
 const CLOUDINARY_UPLOAD_URL = CLOUDINARY_CONFIG.UPLOAD_URL;
 const UPLOAD_PRESET = CLOUDINARY_CONFIG.UPLOAD_PRESET;
+
+
 
 
 export default function AddDateScreen({ navigation }) {
@@ -25,6 +36,7 @@ export default function AddDateScreen({ navigation }) {
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
   const [showEndTimeButton, setShowEndTimeButton] = useState(true);
+  const [selectedEmoji, setSelectedEmoji] = useState(null);
   
 
   // Day Range State – only one extra date is allowed.
@@ -349,10 +361,13 @@ return (
           {photo ? (
             <Image source={{ uri: photo }} style={styles.selectedImage} />
           ) : (
-            <TouchableOpacity style={styles.photoButton} onPress={takePhoto}>
-              <Ionicons name="camera-outline" size={50} color="gray" />
-              <Text style={styles.photoText}>Click To Take Photo</Text>
-            </TouchableOpacity>
+
+            <View style={styles.photoWrapper}>
+              <TouchableOpacity style={styles.photoButton} onPress={takePhoto}>
+                <Ionicons name="camera-outline" size={50} color="gray" />
+                <Text style={styles.photoText}>Click To Take Photo</Text>
+              </TouchableOpacity>
+            </View>
           )}
 
           {/* ➕ Plus Button in Top Right Corner */}
@@ -360,6 +375,31 @@ return (
             <Ionicons name="add" size={24} color="gray" />
           </TouchableOpacity>
         </View>
+
+
+      {/* Selected Emoji Preview */}
+      {/* {selectedEmoji && (
+        <Text style={styles.selectedEmoji}>{selectedEmoji}</Text> // ✅ Shows only the emoji
+      )} */}
+
+      {/* Emoji Selection Grid */}
+      <View style={styles.emojiWrapper}>
+        <Text style={styles.emojiLabel}>Select an custom pin</Text>
+        <View style={styles.emojiGrid}>
+          {EMOJIS.map((emoji, index) => (
+            <TouchableOpacity 
+              key={index} 
+              style={[
+                styles.emojiButton, 
+                selectedEmoji === emoji && styles.selectedEmojiButton // Apply color change
+              ]}
+              onPress={() => setSelectedEmoji(emoji)}
+            >
+              <Text style={styles.emojiText}>{emoji}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
 
         {/* ✅ Add Event Button */}
         <Button title="Add Event" onPress={handleAddEvent} />
@@ -380,15 +420,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', 
     alignItems: 'center',
     padding: 12, 
-    borderWidth: 1, 
     borderRadius: 5, 
-    borderColor: '#ddd', 
     marginBottom: 10, 
     backgroundColor: '#fff', 
     width: '100%' 
   },
   dateText: { fontSize: 16 },
-  input: { width: '100%', padding: 10, borderWidth: 1, borderColor: '#ddd', marginBottom: 10, borderRadius: 5, backgroundColor: '#fff' },
+  input: { width: '100%', padding: 10, marginBottom: 10, borderRadius: 5, backgroundColor: '#fff' },
   removeText: { color: 'red', textAlign: 'center', marginTop: 5 },
   button: { backgroundColor: "gray", padding: 10, borderRadius: 5, marginTop: 10 }, // ✅ FIXED
   buttonText: { color: "white", textAlign: "center" }, // ✅ FIXED
@@ -397,10 +435,8 @@ const styles = StyleSheet.create({
   photoContainer: {
     width: "100%",
     height:250 ,
-    backgroundColor: "#f7f7f7",
+    backgroundColor: "#fff",
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#ddd",
     justifyContent: "center",
     alignItems: "center",
     position: "relative", // Needed for absolute positioning of "+"
@@ -408,6 +444,8 @@ const styles = StyleSheet.create({
   
   photoButton: {
     alignItems: "center",
+    paddingVertical: 20, // ✅ Increases vertical tap area
+    paddingHorizontal: 40, // ✅ Increases horizontal tap area
   },
   
   photoText: {
@@ -437,5 +475,57 @@ const styles = StyleSheet.create({
     height: "100%",
     borderRadius: 10,
   },
+
+  emojiLabel: { fontSize: 13,  marginTop: 5, marginBottom: 10, color:'#a6a6a6', },
+  emojiGrid: { 
+    flexDirection: 'row', 
+    flexWrap: 'wrap', 
+    justifyContent: 'space-between', // Distributes items evenly
+    paddingHorizontal: 10, // Prevents items from being cut off
+  },
   
+  emojiButton: {
+    width: 40, // Set a fixed size for perfect circles
+    height: 40, 
+    marginBottom: 8,  // ✅ Space between rows
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    backgroundColor: '#f5f5f5', 
+    borderRadius: 50,
+    opacity:0.2,
+  },
+  
+  selectedEmojiButton: { 
+    backgroundColor: 'white' , //darker purple
+    opacity: 1, // ✅ Full color when selected
+    shadowColor: '#000', // Shadow color
+    shadowOffset: { width: 3, height: 3 }, // More pronounced shadow for selection
+    shadowOpacity: 0.3, // Slightly stronger shadow for selected emoji
+    shadowRadius: 5, // More blur for depth effect
+    elevation: 6, // Stronger Android shadow
+  }, // Highlight selection
+  
+  emojiText: { fontSize: 24 },
+  selectedEmojiContainer: { marginBottom: 10 },
+  selectedEmoji: { fontSize: 18, fontWeight: 'bold', color: 'darkblue' },
+  photoWrapper: {
+    backgroundColor: '#f7f7fa', // ✅ White background
+    padding: 10, // ✅ Adds spacing inside
+    borderRadius: 10, // ✅ Rounded corners
+    alignItems: 'center', // ✅ Centers content
+    justifyContent: 'center', // ✅ Centers content
+    marginVertical: 5, // ✅ Adds spacing
+    width: '80%', // ✅ Keeps it proportional
+    height: '80%',
+    alignSelf: 'center', // ✅ Centers it in the parent container
+  },
+  emojiWrapper: {
+    backgroundColor: '#fff', // ✅ Light grey background
+    padding: 15, // ✅ Adds spacing inside
+    borderRadius: 10, // ✅ Rounded corners
+    marginTop:20,
+    marginBottom: 10, // ✅ Adds spacing below
+    width: '100%', // ✅ Full width
+    alignSelf: 'center',
+  },
 });

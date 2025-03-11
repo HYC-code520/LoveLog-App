@@ -233,7 +233,10 @@ useEffect(() => {
             agendaDayTextColor: 'black',
             agendaDayNumColor: 'black',
             agendaTodayColor: 'red',
-            agendaKnobColor: 'pink'
+            agendaKnobColor: 'pink',
+            knobContainer: {
+              paddingVertical: 40,
+            }
           }}
         />
 
