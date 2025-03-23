@@ -94,7 +94,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps): React.JSX.Element => {
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color="#ff66b2" />
-        <Text>Loading your LoveLog...</Text>
+        <Text>Loading LoveLog...</Text>
       </View>
     );
   }
